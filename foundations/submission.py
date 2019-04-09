@@ -138,48 +138,6 @@ def findSingletonWords(text):
 
 ############################################################
 # Problem 3g
-def computeLongestPalindromeLength_v1(text):
-    """
-    A palindrome is a string that is equal to its reverse (e.g., 'ana').
-    Compute the length of the longest palindrome that can be obtained by deleting
-    letters from |text|.
-    For example: the longest palindrome in 'animal' is 'ama'.
-    Your algorithm should run in O(len(text)^2) time.
-    You should first define a recurrence before you start coding.
-    """
-    # BEGIN_YOUR_CODE (our solution is 19 lines of code, but don't worry if you deviate from this)
-    if len(text) == 0:
-        return 0
-    if len(text) == 1:
-        return 1
-    if text == text[::-1]:
-        return len(text)
-
-    # find duplicate characters
-    duplicateCharacters = []
-    counter = collections.Counter(text)
-    for character in counter:
-        if counter[character] >= 2:
-            duplicateCharacters.append(character)
-
-    if len(duplicateCharacters) == 0:
-        return 1
-
-    # create remnant strings by removing duplicates at end
-    remnants = []
-    for character in duplicateCharacters:
-        remnants.append(text[text.find(character)+1:text.rfind(character)])
-
-    maxLength = 0
-    for remnant in remnants:
-        length = computeLongestPalindromeLength(remnant) + 2
-        if length > maxLength:
-            maxLength = length
-
-    return maxLength
-    # END_YOUR_CODE
-############################################################
-# Problem 3g
 def computeLongestPalindromeLength(text):
     """
     A palindrome is a string that is equal to its reverse (e.g., 'ana').
@@ -191,24 +149,23 @@ def computeLongestPalindromeLength(text):
     """
     # BEGIN_YOUR_CODE (our solution is 19 lines of code, but don't worry if you deviate from this)
     cache = {}
-    
-    def removeChar(txt, index):
-        return txt[:index] + txt[index+1:]
 
-    def computeLengthRecursively(txt, firstIndex, lastIndex):
-        if txt in cache:
-            return cache[txt]
-        elif txt == txt[::-1]:
-            result = len(txt)
-        elif txt[firstIndex] == txt[lastIndex]:
-            result = computeLengthRecursively(txt, firstIndex+1, lastIndex-1)
+    def computeLengthRecursively(firstIndex, lastIndex):
+        if (firstIndex, lastIndex) in cache:
+            return cache[(firstIndex, lastIndex)]
+        elif lastIndex - firstIndex < 0:
+            result = 0
+        elif lastIndex - firstIndex == 0:
+            result = 1
+        elif text[firstIndex] == text[lastIndex]:
+            result = computeLengthRecursively(firstIndex+1, lastIndex-1) + 2
         else:
-            len1 = computeLengthRecursively(removeChar(txt, firstIndex), firstIndex, lastIndex-1)
-            len2 = computeLengthRecursively(removeChar(txt, lastIndex), firstIndex, lastIndex-1)
+            len1 = computeLengthRecursively(firstIndex+1, lastIndex)
+            len2 = computeLengthRecursively(firstIndex, lastIndex-1)
             result =  max(len1,len2)
         
-        cache[txt] = result
+        cache[(firstIndex, lastIndex)] = result
         return result
 
-    return computeLengthRecursively(text, 0, len(text)-1)
+    return computeLengthRecursively(0, len(text)-1)
     # END_YOUR_CODE

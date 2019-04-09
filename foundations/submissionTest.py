@@ -24,7 +24,6 @@ def test3e():
 
 def test3g():
     print(submission.computeLongestPalindromeLength('animal'))
-    print(submission.computeLongestPalindromeLength_v1('animal'))
 
 if __name__ == '__main__':
     #test3a()
