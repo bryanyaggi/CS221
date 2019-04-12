@@ -1,5 +1,5 @@
 \documentclass[10pt]{article}
-\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx,listings}
 
 \begin{document}
 
@@ -132,18 +132,55 @@ When designing algorithms, it's useful to be able to do quick back of the envelo
 
   \item Suppose we have an image of a human face consisting of $nxn$ pixels. In our simplified setting, a face consists of two eyes, two ears, one nose, and one mouth, each represented as an arbitrary axis-aligned rectangle (i.e. the axes of the rectangle are aligned with the axes of the image). As we'd like to handle Picasso portraits too, there are no constraints on the location or size of the rectangles. How many possible faces (choice of its component rectangles) are there? In general, we only care about asymptotic complexity, so give your answer in the form of $O(nc)$ or $O(cn)$ for some integer $c$.
   
-  Answer... use combinatorics...
+  To define a rectange, two bounding horizontal axes and two bounding vertical axes can be selected. 6 rectangles need to be chosen to constitute a face. This is a combinatorics problem.
+  
+  \begin{align*}
+  \left(\binom{n + 1}{2}^2\right)^6 = \left(\frac{(n + 1)!}{2!(n - 1)!}\right)^{12} = \left(\frac{(n + 1)(n)}{4}\right)^{12} \implies O(n^{24})
+  \end{align*}
   
   \item Suppose we have an $nxn$ grid. We start in the upper-left corner (position $(1,1)$), and we would like to reach the lower-right corner (position $(n,n)$) by taking single steps down and right. Define a function $c(i,j)$ to be the cost of touching position $(i,j)$, and assume it takes constant time to compute. Note that $c(i,j)$ can be negative. Give an algorithm for computing the minimum cost in the most efficient way. What is the runtime (just give the big-O)?
   
-  Answer... use A* heuristic function = number of steps from goal...
+  The problem can be solved using recursion and dynamic programming. The complexity is $O(n^2)$. The following is a code sample in Python.
+  
+  \begin{lstlisting}
+  cache = {}
+  def findMinCost(row, col):
+  	if (row, col) in cache:
+  		return cache[(row, col)]
+  	if row == target[0] and col == target[1]:
+  		result = c(row, col)
+  	elif row == target[0]:
+  		result = c(row, col) + findMinCost(row, col+1)
+  	elif col == target[1]:
+  		result = c(row, col) + findMinCost(row+1, col)
+  	else:
+  		result = c(row, col) + min(findMinCost(row+1, col),
+  			findMinCost(row, col+1))
+  		
+  	cache[(row, col)] = result
+  	return result
+  \end{lstlisting}
   
   \item Suppose we have a staircase with $n$ steps (we start on the ground, so we need $n$ total steps to reach the top). We can take as many steps forward at a time, but we will never step backwards. How many ways are there to reach the top? Give your answer as a function of $n$. For example, if $n=3$, then the answer is 4. The four options are the following: (1) take one step, take one step, take one step (2) take two steps, take one step (3) take one step, take two steps (4) take three steps.
   
-  Answer... experimentation to get result...
+  The solution was found by experimentation. Let $f(n)$ be the number of ways for a staircase with $n$ stairs.
+  
+  \begin{align*}
+  f(1) &= 1 &\text{[1]}\\
+  f(2) &= 2 &\text{[2] or [1,1]}\\
+  f(3) &= 4 &\text{[3] or [2,1] or [1,2] or [1,1,1]}\\
+  f(4) &= 8 &\text{[4] or [3,1] or [1,3] or [2,2] or [2,1,1] or [1,2,1] or [1,1,2] or [1,1,1,1]}\\
+  f(n) &= 2^{n-1}
+  \end{align*}
   
   \item Consider the scalar-valued function $f(w)$ from Problem 1f. Devise a strategy that first does preprocessing in $O(nd^2)$ time, and then for any given vector $w$, takes $O(d^2)$ time instead to compute $f(w)$.
 Hint: Refactor the algebraic expression; this is a classic trick used in machine learning. Again, you may find it helpful to work out the scalar case first.
+
+  \begin{align*}
+  f(w) &= \sum_{i=1}^n \sum_{j=1}^n (a_i^\top w - b_j^\top w)^2 + \lambda \lVert w \rVert_2^2\\
+  &= w^{\top} \left( \sum_{i = 1}^n \sum_{j = 1}^n (a_i - b_j)(a_i - b_j)^{\top} \right) w + \lambda w^{\top}w\\
+  &= \left( \left(\sum_{i = 1}^n a_i - \sum_{j = 1}^n b_j\right)\left(\sum_{i = 1}^n a_i - \sum_{j = 1}^n b_j\right)^{\top} + \lambda \right) w^{\top}w
+  \end{align*}
 
 \end{enumerate}
 
