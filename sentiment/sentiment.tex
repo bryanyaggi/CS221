@@ -215,66 +215,56 @@ Add a feature for word count. The feature will be 0 if $x$ has one word, and 1 i
 
 \end{enumerate}
 
-\iffalse
-\section*{\normalsize Problem 2: Complexity}
 
-When designing algorithms, it's useful to be able to do quick back of the envelope calculations to see how much time or space an algorithm needs. Hopefully, you'll start to get more intuition for this by being exposed to different types of problems.
+\section*{\normalsize Problem 2: Predicting Movie Ratings}
+
+Suppose that we are now interested in predicting a numeric rating for each movie review. We will use a non-linear predictor that takes a movie review $x$ and returns $\sigma(\mathbf{w} \cdot \phi(x))$, where $\sigma(z)=(1+e^{-z})^{-1}$ is the logistic function that squashes a real number to the range $(0,1)$. Suppose that we wish to use the squared loss. For this problem, assume that the movie rating $y$ is a real-valued variable in the range $[0,1]$.
 
 \begin{enumerate}[label=(\alph*)]
 
-  \item Suppose we have an image of a human face consisting of $nxn$ pixels. In our simplified setting, a face consists of two eyes, two ears, one nose, and one mouth, each represented as an arbitrary axis-aligned rectangle (i.e. the axes of the rectangle are aligned with the axes of the image). As we'd like to handle Picasso portraits too, there are no constraints on the location or size of the rectangles. How many possible faces (choice of its component rectangles) are there? In general, we only care about asymptotic complexity, so give your answer in the form of $O(nc)$ or $O(cn)$ for some integer $c$.
-  
-  To define a rectange, two bounding horizontal axes and two bounding vertical axes can be selected. 6 rectangles need to be chosen to constitute a face. This is a combinatorics problem.
+  \item Write out the expression for $Loss(x, y, \mathbf{w})$.
   
   \begin{align*}
-  \left(\binom{n + 1}{2}^2\right)^6 = \left(\frac{(n + 1)!}{2!(n - 1)!}\right)^{12} = \left(\frac{(n + 1)(n)}{4}\right)^{12} \implies O(n^{24})
+  Loss_{squared} (x, y, \mathbf{w}) &= (f_w(x) - y)^2\\
+  &= (\sigma(\mathbf{w} \cdot \phi(x)) - y)^2\\
+  &= ((1 + e^{-w \cdot \phi(x)})^{-1} - y)^2
   \end{align*}
   
-  \item Suppose we have an $nxn$ grid. We start in the upper-left corner (position $(1,1)$), and we would like to reach the lower-right corner (position $(n,n)$) by taking single steps down and right. Define a function $c(i,j)$ to be the cost of touching position $(i,j)$, and assume it takes constant time to compute. Note that $c(i,j)$ can be negative. Give an algorithm for computing the minimum cost in the most efficient way. What is the runtime (just give the big-O)?
-  
-  The problem can be solved using recursion and dynamic programming. The complexity is $O(n^2)$. The following is a code sample in Python.
-  
-  \begin{lstlisting}
-  cache = {}
-  def findMinCost(row, col):
-  	if (row, col) in cache:
-  		return cache[(row, col)]
-  	if row == target[0] and col == target[1]:
-  		result = c(row, col)
-  	elif row == target[0]:
-  		result = c(row, col) + findMinCost(row, col+1)
-  	elif col == target[1]:
-  		result = c(row, col) + findMinCost(row+1, col)
-  	else:
-  		result = c(row, col) + min(findMinCost(row+1, col),
-  			findMinCost(row, col+1))
-  		
-  	cache[(row, col)] = result
-  	return result
-  \end{lstlisting}
-  
-  \item Suppose we have a staircase with $n$ steps (we start on the ground, so we need $n$ total steps to reach the top). We can take as many steps forward at a time, but we will never step backwards. How many ways are there to reach the top? Give your answer as a function of $n$. For example, if $n=3$, then the answer is 4. The four options are the following: (1) take one step, take one step, take one step (2) take two steps, take one step (3) take one step, take two steps (4) take three steps.
-  
-  The solution was found by experimentation. Let $f(n)$ be the number of ways for a staircase with $n$ stairs.
+  \item Compute the gradient of the loss with respect to $w$. Hint: you can write the answer in terms of the predicted value $p = \sigma(\mathbf{w} \cdot \phi(x))$.
   
   \begin{align*}
-  f(1) &= 1 &\text{[1]}\\
-  f(2) &= 2 &\text{[2] or [1,1]}\\
-  f(3) &= 4 &\text{[3] or [2,1] or [1,2] or [1,1,1]}\\
-  f(4) &= 8 &\text{[4] or [3,1] or [1,3] or [2,2] or [2,1,1] or [1,2,1] or [1,1,2] or [1,1,1,1]}\\
-  f(n) &= 2^{n-1}
+  \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 2(p - y) \frac{\partial p}{\partial \mathbf{w}}\\
+  &= 2((1 + e^{-w \cdot \phi(x)})^{-1} - y)(-(1 + e^{-w \cdot \phi(x)})^{-2})(e^{-w \cdot \phi(x)})(-\phi(x))\\
+  &= 2((1 + e^{-w \cdot \phi(x)})^{-1} - y)(1 + e^{-w \cdot \phi(x)})^{-2}e^{-w \cdot \phi(x)}\phi(x)
   \end{align*}
   
-  \item Consider the scalar-valued function $f(w)$ from Problem 1f. Devise a strategy that first does preprocessing in $O(nd^2)$ time, and then for any given vector $w$, takes $O(d^2)$ time instead to compute $f(w)$.
-Hint: Refactor the algebraic expression; this is a classic trick used in machine learning. Again, you may find it helpful to work out the scalar case first.
+  \item Suppose there is one datapoint $(x, y)$ with some given $\phi(x)$ and $y = 1$. Can you choose a $\mathbf{w}$ to make the magnitude of the gradient of the loss with respect to $\mathbf{w}$ arbitrarily small (i.e., minimize the magnitude of the gradient and make it asymptotically approach some value)? If so, how small? Can the magnitude of the gradient ever be exactly zero? You are allowed to make the magnitude of $\mathbf{w}$ arbitrarily large. Hint: try to understand intuitively what is going on and the contribution of each part of the expression. If you find yourself doing too much algebra, you're probably doing something suboptimal. Motivation: the reason why we're interested in the magnitude of the gradients is because it governs how far gradient descent will step. For example, if the gradient is close to zero when $\mathbf{w}$ is very far from the optimum, then it could take a long time for gradient descent to reach the optimum (if at all). This is known as the vanishing gradient problem when training neural networks.
+  
+  \begin{align*}
+  \lim_{w \to \infty} \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 0\\
+  \text{since} \lim_{w \to \infty} e^{-w \cdot \phi(x)} &= 0\\
+  \lim_{w \to -\infty} \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 0\\
+  \text{since} \lim_{w \to -\infty} ((1 + e^{-w \cdot \phi(x)})^{-2} &= 0
+  \end{align*}
+  
+  The gradient will asymptotically reach 0, but never truly be 0.
+  
+  \item  Assuming the same data point as above, what is the largest magnitude that the gradient can take? Leave your answer in terms of $\lVert \phi(x) \rVert$.
 
   \begin{align*}
-  f(w) &= \sum_{i=1}^n \sum_{j=1}^n (a_i^\top w - b_j^\top w)^2 + \lambda \lVert w \rVert_2^2\\
-  &= w^{\top} \left( \sum_{i = 1}^n \sum_{j = 1}^n (a_i - b_j)(a_i - b_j)^{\top} \right) w + \lambda w^{\top}w\\
-  &= \left( \left(\sum_{i = 1}^n a_i - \sum_{j = 1}^n b_j\right)\left(\sum_{i = 1}^n a_i - \sum_{j = 1}^n b_j\right)^{\top} + \lambda \right) w^{\top}w
+  \lVert \nabla_w Loss_{squared} (x, y, \mathbf{w}) \rVert &= 2(p - y) p^2 (1 - p) \lVert \phi(x) \rVert\\
+  \lVert \nabla_w Loss_{squared} (x, y = 1, \mathbf{w}) \rVert &= 2(p - 1) p^2 (1 - p) \lVert \phi(x) \rVert\\
+  &= (-2p^4 + 4p^3 -2p^2) \lVert \phi(x) \rVert\\
+  \nabla_w^2 L_{squared} (x, y = 1, \mathbf{w}) &= -8p^3 + 12p^2 - 4p = 0 \implies p = 1, \frac{1}{2}\\
+  max(\lVert \nabla_w Loss_{squared} (x, y = 1, \mathbf{w}) \rVert) &= -\frac{1}{8} \lVert \phi(x) \rVert
   \end{align*}
+  
+  \item The problem with the loss function we have defined so far is that is it is non-convex, which means that gradient descent is not guaranteed to find the global minimum, and in general these types of problems can be difficult to solve. So let us try to reformulate the problem as plain old linear regression. Suppose you have a dataset $\mathbf{D}$ consisting of $(x,y)$ pairs, and that there exists a weight vector $\mathbf{w}$ that yields zero loss on this dataset. Show that there is an easy transformation to a modified dataset $\mathbf{D'}$ of $(x,y')$ pairs such that performing least squares regression (using a linear predictor and the squared loss) on $\mathbf{D'}$ converges to a vector $\mathbf{w^*}$ that yields zero loss on $\mathbf{D'}$. Concretely, write an expression for $y'$ in terms of $y$ and justify this choice. This expression should not be a function of $\mathbf{w}$.
+  
+  The logit function is the inverse of the sigmoid function and converts from $[0,1]$ to $[-\infty,+\infty]$.
+  
+  $$y' = logit(y) = log(\frac{y}{1 - y})$$
 
 \end{enumerate}
-\fi
 
 \end{document}
