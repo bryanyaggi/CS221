@@ -76,7 +76,14 @@ def generateDataset(numExamples, weights):
     # y should be 1 or -1 as classified by the weight vector.
     def generateExample():
         # BEGIN_YOUR_CODE (our solution is 2 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        minFeatureValue = 0
+        maxFeatureValue = 5
+        phi = {}
+        for feature in weights:
+            phi[feature] = random.randint(minFeatureValue, maxFeatureValue)
+        y = -1
+        if dotProduct(weights, phi) >= 0:
+            y = 1
         # END_YOUR_CODE
         return (phi, y)
     return [generateExample() for _ in range(numExamples)]
@@ -93,7 +100,16 @@ def extractCharacterFeatures(n):
     '''
     def extract(x):
         # BEGIN_YOUR_CODE (our solution is 6 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        chars = "".join(x.split())
+        startIndex = 0
+        endIndex = n - 1
+        ngrams = []
+        while endIndex < len(chars):
+            ngrams.append(chars[startIndex : endIndex + 1])
+            startIndex += 1
+            endIndex += 1
+        counter = collections.Counter(ngrams)
+        return dict(counter)
         # END_YOUR_CODE
     return extract
 
