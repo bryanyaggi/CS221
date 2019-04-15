@@ -22,13 +22,15 @@ def extractWordFeatures(x):
     Example: "I am what I am" --> {'I': 2, 'am': 2, 'what': 1}
     """
     # BEGIN_YOUR_CODE (our solution is 4 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    words = x.split()
+    counter = collections.Counter(words)
+    return dict(counter)
     # END_YOUR_CODE
 
 ############################################################
 # Problem 3b: stochastic gradient descent
 
-def learnPredictor(trainExamples, testExamples, featureExtractor, numIters, eta):
+def learnPredictor(trainExamples, testExamples, featureExtractor, numEpochs, eta):
     '''
     Given |trainExamples| and |testExamples| (each one is a list of (x,y)
     pairs), a |featureExtractor| to apply to x, and the number of iterations to
@@ -39,11 +41,23 @@ def learnPredictor(trainExamples, testExamples, featureExtractor, numIters, eta)
 
     Note: only use the trainExamples for training!
     You should call evaluatePredictor() on both trainExamples and testExamples
-    to see how you're doing as you learn after each iteration.
+    to see how you're doing as you learn after each epoch.
     '''
     weights = {}  # feature => weight
     # BEGIN_YOUR_CODE (our solution is 12 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    epoch = 0
+    while epoch < numEpochs:
+        for trainExample in trainExamples:
+            features = featureExtractor(trainExample[0])
+            gradient = {}
+            if dotProduct(weights, features) * trainExample[1] < 1:
+                for feature in features:
+                    gradient[feature] = -1 * features[feature] * trainExample[1]
+            increment(weights, -eta, gradient)
+        epoch += 1
+        trainError = evaluatePredictor(trainExamples, lambda(x) : (1 if dotProduct(featureExtractor(x), weights) >= 0 else -1))
+        testError = evaluatePredictor(testExamples, lambda(x) : (1 if dotProduct(featureExtractor(x), weights) >= 0 else -1))
+        print("Train error = %s, Test error = %s" %(trainError, testError))
     # END_YOUR_CODE
     return weights
 

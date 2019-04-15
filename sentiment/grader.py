@@ -50,7 +50,7 @@ def test3b0():
     trainExamples = (("hello world", 1), ("goodnight moon", -1))
     testExamples = (("hello", 1), ("moon", -1))
     featureExtractor = submission.extractWordFeatures
-    weights = submission.learnPredictor(trainExamples, testExamples, featureExtractor, numIters=20, eta=0.01)
+    weights = submission.learnPredictor(trainExamples, testExamples, featureExtractor, numEpochs=20, eta=0.01)
     grader.requireIsGreaterThan(0, weights["hello"])
     grader.requireIsLessThan(0, weights["moon"])
 grader.addBasicPart('3b-0-basic', test3b0, maxSeconds=1, description="basic sanity check for learning correct weights on two training and testing examples each")
@@ -59,7 +59,7 @@ def test3b1():
     trainExamples = (("hi bye", 1), ("hi hi", -1))
     testExamples = (("hi", -1), ("bye", 1))
     featureExtractor = submission.extractWordFeatures
-    weights = submission.learnPredictor(trainExamples, testExamples, featureExtractor, numIters=20, eta=0.01)
+    weights = submission.learnPredictor(trainExamples, testExamples, featureExtractor, numEpochs=20, eta=0.01)
     grader.requireIsLessThan(0, weights["hi"])
     grader.requireIsGreaterThan(0, weights["bye"])
 grader.addBasicPart('3b-1-basic', test3b1, maxSeconds=1, description="test correct overriding of positive weight due to one negative instance with repeated words")
@@ -68,7 +68,7 @@ def test3b2():
     trainExamples = readExamples('polarity.train')
     devExamples = readExamples('polarity.dev')
     featureExtractor = submission.extractWordFeatures
-    weights = submission.learnPredictor(trainExamples, devExamples, featureExtractor, numIters=20, eta=0.01)
+    weights = submission.learnPredictor(trainExamples, devExamples, featureExtractor, numEpochs=20, eta=0.01)
     outputWeights(weights, 'weights')
     outputErrorAnalysis(devExamples, featureExtractor, weights, 'error-analysis')  # Use this to debug
     trainError = evaluatePredictor(trainExamples, lambda(x) : (1 if dotProduct(featureExtractor(x), weights) >= 0 else -1))
