@@ -129,21 +129,17 @@ def kmeans(examples, K, maxIters):
     '''
     # BEGIN_YOUR_CODE (our solution is 32 lines of code, but don't worry if you deviate from this)
     
-    def squaredEuclideanDistance(d1, d2):
-        allKeys = list(set(d1.keys()) | set(d2.keys()))
-        result = 0
-        for key in allKeys:
-            result += abs(d1[key] - d2[key])**2
-        return result
+    def squaredEuclideanDistance(d1SqMag, d2SqMag, d1, d2):
+        return d1SqMag - 2 * dotProduct(d1, d2) + d2SqMag
 
     # Select K means randomly from examples
     random.seed(42)    
     means = []
-    meanSqMag = [] # pre-calculate mean squared magnitudes
+    meanSqMags = [] # pre-calculate mean squared magnitudes
     for i in range(K):
         mean = examples[random.randint(0, K - 1)]
         means.append(mean)
-        meanSqMag.append(dotProduct(mean, mean))
+        meanSqMags.append(dotProduct(mean, mean))
     assignments = [-1] * len(examples)
 
     # Pre-calculate example squared magnitudes
@@ -161,7 +157,8 @@ def kmeans(examples, K, maxIters):
         for i in range(len(examples)):
             minSquaredDistance = -1
             for j in range(len(means)):
-                squaredDistance = exampleSqMags[i] - 2 * dotProduct(examples[i], means[j]) + meanSqMag[j]
+                squaredDistance = squaredEuclideanDistance(exampleSqMags[i], meanSqMags[j],
+                        examples[i], means[j])
                 if (assignments[i] == -1) or (squaredDistance < minSquaredDistance):
                     minSquaredDistance = squaredDistance
                     if assignments[i] != j:
@@ -185,7 +182,7 @@ def kmeans(examples, K, maxIters):
             if means[i] != mean:
                 change = True
             means[i] = mean
-            meanSqMag[i] = dotProduct(mean, mean) # pre-calculate mean squared magnitudes
+            meanSqMags[i] = dotProduct(mean, mean) # pre-calculate mean squared magnitudes
         if not(change):
             quit = True
         iters += 1
@@ -193,8 +190,8 @@ def kmeans(examples, K, maxIters):
     # Calculate final loss
     loss = 0
     for i in range(len(examples)):
-        loss += squaredEuclideanDistance(means[assignments[i]], examples[i])
-    print("iterations = %s" %iters)
+        loss += squaredEuclideanDistance(exampleSqMags[i], meanSqMags[assignments[i]],
+                examples[i], means[assignments[i]])
 
     return (means, assignments, loss)
     # END_YOUR_CODE
