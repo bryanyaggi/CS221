@@ -128,5 +128,73 @@ def kmeans(examples, K, maxIters):
             final reconstruction loss)
     '''
     # BEGIN_YOUR_CODE (our solution is 32 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    
+    def squaredEuclideanDistance(d1, d2):
+        allKeys = list(set(d1.keys()) | set(d2.keys()))
+        result = 0
+        for key in allKeys:
+            result += abs(d1[key] - d2[key])**2
+        return result
+
+    # Select K means randomly from examples
+    random.seed(42)    
+    means = []
+    meanSqMag = [] # pre-calculate mean squared magnitudes
+    for i in range(K):
+        mean = examples[random.randint(0, K - 1)]
+        means.append(mean)
+        meanSqMag.append(dotProduct(mean, mean))
+    assignments = [-1] * len(examples)
+
+    # Pre-calculate example squared magnitudes
+    exampleSqMags = []
+    for example in examples:
+        exampleSqMags.append(dotProduct(example, example))
+    
+    iters = 0
+    quit = False
+    while iters < maxIters and not(quit):
+
+        # Step 1: for each example, assign example to cluster with closest mean
+        change = False
+        assignments = [-1] * len(examples)
+        for i in range(len(examples)):
+            minSquaredDistance = -1
+            for j in range(len(means)):
+                squaredDistance = exampleSqMags[i] - 2 * dotProduct(examples[i], means[j]) + meanSqMag[j]
+                if (assignments[i] == -1) or (squaredDistance < minSquaredDistance):
+                    minSquaredDistance = squaredDistance
+                    if assignments[i] != j:
+                        change = True
+                    assignments[i] = j
+        if not(change):
+            quit = True
+            continue
+
+        # Step 2: for each cluster, set mean to that of examples in cluster
+        change = False
+        for i in range(len(means)):
+            mean = collections.defaultdict(float)
+            numExamples = 0.0
+            for j in range(len(examples)):
+                if assignments[j] == i:
+                    increment(mean, 1, examples[j])
+                    numExamples += 1
+            for key in mean:
+                mean[key] = mean[key] / numExamples
+            if means[i] != mean:
+                change = True
+            means[i] = mean
+            meanSqMag[i] = dotProduct(mean, mean) # pre-calculate mean squared magnitudes
+        if not(change):
+            quit = True
+        iters += 1
+
+    # Calculate final loss
+    loss = 0
+    for i in range(len(examples)):
+        loss += squaredEuclideanDistance(means[assignments[i]], examples[i])
+    print("iterations = %s" %iters)
+
+    return (means, assignments, loss)
     # END_YOUR_CODE
