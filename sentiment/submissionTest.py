@@ -23,7 +23,7 @@ def test3e():
 def test3f():
     trainExamples = util.readExamples('polarity.train')
     devExamples = util.readExamples('polarity.dev')
-    for n in range(4, 8):
+    for n in range(4, 13):
         featureExtractor = submission.extractCharacterFeatures(n)
         print("n = %d" %n)
         submission.learnPredictor(trainExamples, devExamples, featureExtractor, numEpochs = 20, eta = 0.01)
@@ -54,5 +54,5 @@ if __name__ == '__main__':
     #test3b()
     #test3c()
     #test3e()
-    #test3f()
-    test4b()
+    test3f()
+    #test4b()

@@ -276,6 +276,41 @@ In this problem, we will build a binary linear classifier that reads movie revie
   \item coding
   \item coding
   \item coding
+  
+  \item When you run the grader.py on test case 3b-2, it should output a weights file and a error-analysis file. Look through some example incorrect predictions and for five of them, give a one-sentence explanation of why the classification was incorrect. What information would the classifier need to get these correct? In some sense, there's not one correct answer, so don't overthink this problem. The main point is to convey intuition about the problem.
+
+	Review 1: home alone goes hollywood , a funny premise until the kids start pulling off stunts not even steven spielberg would know how to do . besides , real movie producers aren't this nice .\\
+Truth: -1, Prediction: 1 [WRONG]
+
+	It is tough to determine the sentiment of this review via individual words alone.
+
+	Review 2: a perfectly competent and often imaginative film that lacks what little lilo \& stitch had in spades -- charisma .\\
+Truth: 1, Prediction: -1 [WRONG]
+
+	This review had several stop-words that were weighted heavily negative.
+
+	Review 3: a heady , biting , be-bop ride through nighttime manhattan , a loquacious videologue of the modern male and the lengths to which he'll go to weave a protective cocoon around his own ego .\\
+Truth: 1, Prediction: -1 [WRONG]
+
+	The vocabulary in this review is advanced, so many of the important words did not have significant weights assigned to them. Also, there were many stop-words heavily weighted negative.
+
+	Review 4: 'it's painful to watch witherspoon's talents wasting away inside unnecessary films like legally blonde and sweet home abomination , i mean , alabama . '\\
+Truth: -1, Prediction: 1 [WRONG]
+
+	Several of the movie title words were heavily weighted positive. ``Painful" was curiously weighted heavily positive.
+
+	Review 5: dull , if not devoid of wit , this shaggy dog longs to frisk through the back alleys of history , but scarcely manages more than a modest , snoozy charm .\\
+Truth: -1, Prediction: 1 [WRONG]
+
+	Consideration of word proximity is important in this review. Phrases like ``devoid of wit", ``scarcely manages", and ``snoozy charm" should all be negative, but the end words are weighted heavily positive, which leads to the review's positive sentiment score.
+	
+	\item coding
+	
+	\item Run your linear predictor with feature extractor \texttt{extractCharacterFeatures}. Experiment with different values of n to see which one produces the smallest test error. You should observe that this error is nearly as small as that produced by word features. How do you explain this? Construct a review (one sentence max) in which character n-grams probably outperform word features, and briefly explain why this is so.
+	
+	The predictor worked best with n between 5-7. This value is large enough to capture word proximity and most short words. If n is smaller, the n-grams are meaningless and if they are larger, they would be too unique.
+	
+	This approach would work well on a review like ``It's not good." The n-gram ``notgood" would be weighted negative. 
 
 \end{enumerate}
 
