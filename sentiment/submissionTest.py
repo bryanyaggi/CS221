@@ -34,7 +34,11 @@ def test4a():
     x3 = {0:3, 1:0}
     x4 = {0:2, 1:2}
     examples = [x1, x2, x3, x4]
-    submission.kmeans(examples, 2, maxIters=10)
+    centers, assignments, totalCost = submission.kmeans(examples, 2, maxIters=10)
+    print("centers = %s" %centers)
+    print("assignments = %s" %assignments)
+    print("totalCost = %s" %totalCost)
+
 
 def test4b():
     x1 = {0:0, 1:0}
@@ -54,5 +58,6 @@ if __name__ == '__main__':
     #test3b()
     #test3c()
     #test3e()
-    test3f()
+    #test3f()
+    test4a()
     #test4b()

@@ -314,4 +314,88 @@ Truth: -1, Prediction: 1 [WRONG]
 
 \end{enumerate}
 
+\section*{\normalsize Problem 4: K-Means Clustering}
+
+Suppose we have a feature extractor $\phi$ that produces 2-dimensional feature vectors, and a toy dataset $D_{train} = \{x1, x2, x3, x4\}$ with
+
+\begin{align*}
+\phi(x_1) &= [1, 0]\\
+\phi(x_2) &= [1, 2]\\
+\phi(x_3) &= [3, 0]\\
+\phi(x_4) &= [2, 2]\\
+\end{align*}
+
+\begin{enumerate}[label=(\alph*)]
+
+	\item Run 2-means on this dataset until convergence. Please show your work. What are the final cluster assignments $z$ and cluster centers $\mu$? Run this algorithm twice with the following initial centers:
+	\begin{enumerate}[label=(\arabic*)]
+	
+	\item $\mu_1 = [2, 3], \mu_2 = [2, -1]$
+
+	Epoch 1:\\
+	Step 1: Assign feature vectors to clusters.
+	\begin{align*}
+	\lVert \phi(x_1) - \mu_1 \rVert^2 &= 10\\
+	\lVert \phi(x_1) - \mu_2 \rVert^2 &= 2 \implies z_1 = \mu_2\\
+	\lVert \phi(x_2) - \mu_1 \rVert^2 &= 2\\
+	\lVert \phi(x_2) - \mu_2 \rVert^2 &= 10 \implies z_2 = \mu_1\\
+	\lVert \phi(x_3) - \mu_1 \rVert^2 &= 10\\
+	\lVert \phi(x_3) - \mu_2 \rVert^2 &= 2 \implies z_3 = \mu_2\\
+	\lVert \phi(x_4) - \mu_1 \rVert^2 &= 1\\
+	\lVert \phi(x_4) - \mu_2 \rVert^2 &= 9 \implies z_4 = \mu_1
+	\end{align*}
+	
+	Step 2: Find new means for each cluster
+	\begin{align*}
+	\mu_1 = \frac{[1, 2] + [2, 2]}{2} = [\frac{3}{2}, 2]\\
+	\mu_2 = \frac{[1, 0] + [3, 0]}{2} = [2, 0]\\
+	\end{align*}
+	
+	Epoch 2:\\
+	In step 1, the assignments do not change, so convergence has been reached.
+	
+	\item $\mu_1 = [0, 1], \mu_2 = [3, 2]$
+
+	Epoch 1:\\
+	Step 1: Assign feature vectors to clusters.
+	\begin{align*}
+	\lVert \phi(x_1) - \mu_1 \rVert^2 &= 2\\
+	\lVert \phi(x_1) - \mu_2 \rVert^2 &= 8 \implies z_1 = \mu_1\\
+	\lVert \phi(x_2) - \mu_1 \rVert^2 &= 2\\
+	\lVert \phi(x_2) - \mu_2 \rVert^2 &= 4 \implies z_2 = \mu_1\\
+	\lVert \phi(x_3) - \mu_1 \rVert^2 &= 10\\
+	\lVert \phi(x_3) - \mu_2 \rVert^2 &= 4 \implies z_3 = \mu_2\\
+	\lVert \phi(x_4) - \mu_1 \rVert^2 &= 5\\
+	\lVert \phi(x_4) - \mu_2 \rVert^2 &= 1 \implies z_4 = \mu_2
+	\end{align*}
+	
+	Step 2: Find new means for each cluster
+	\begin{align*}
+	\mu_1 = \frac{[1, 0] + [1, 2]}{2} = [1, 1]\\
+	\mu_2 = \frac{[3, 0] + [2, 2]}{2} = [\frac{5}{2}, 1]\\
+	\end{align*}
+	
+	Epoch 2:\\
+	In step 1, the assignments do not change, so convergence has been reached.	
+	
+	\end{enumerate}
+	
+	\item coding
+	
+	\item Sometimes, we have prior knowledge about which points should belong in the same cluster. Suppose we are given a set $S$ of example pairs $(i,j)$ which must be assigned to the same cluster. For example, suppose we have 5 examples; then $S=\{(1,5),(2,3),(3,4)\}$ says that examples 2, 3, and 4 must be in the same cluster and that examples 1 and 5 must be in the same cluster. Provide the modified k-means algorithm that performs alternating minimization on the reconstruction loss:
+$$\sum_i^n = \lVert \mu_{z_i} - \phi(x_i) \rVert^2$$
+where $\mu_{z_i}$ is the assigned centroid for the feature vector $\phi(x_i)$. Recall that alternating minimization is when we are optimizing two variables jointly by alternating which variable we keep constant.
+
+Before starting the k-means algorithm, a new example can be created from the mean of the examples that are known to belong to the same cluster. The original examples that are represented by new examples can be removed from the algorithm, but each of the new examples needs to be weighted by the number of original examples it represents when computing new means for each cluster. The total loss at the end will need to be calculated using only the original examples.
+
+\item What is the advantage of running k-means multiple times on the same dataset with the same K, but different random initializations?
+
+	Prevents the chance of only finding a local minimum.
+	
+\item If we scale all dimensions in our initial centroids and data points by some factor, are we guaranteed to retrieve the same clusters after running k-means (i.e. will the same data points belong to the same cluster before and after scaling)? What if we scale only certain dimensions? If your answer is yes, provide a short explanation. If it is no, provide a counterexample.
+
+	Yes, if all dimensions are scaled by the same factor, the clusters will remain the same. If only certain dimensions are scaled, the clusters will not necessarily remain the same. The distances between points are dependent on all dimensions.
+	
+\end{enumerate}
+
 \end{document}
