@@ -86,7 +86,7 @@ def getRealCosts():
 def add_parts_1(grader, submission):
     grader.addManualPart('1a', 2, description='example to justify the greedy algorithm is suboptimal in word segmentation')
 
-    if grader.selectedPartName in ['1b-2-basic', '1b-3-hidden', '1b-4-hidden', None]:  # avoid timeouts
+    if grader.selectedPartName in ['1b-2-basic', '1b-3-hidden', '1b-4-hidden', '1b-5-basic', None]:  # avoid timeouts
         unigramCost, _, _ = getRealCosts()
 
     def t_1b_1():
@@ -135,6 +135,12 @@ def add_parts_1(grader, submission):
             pred = [submission.segmentWords(part, unigramCost) for part in parts]
 
     grader.addHiddenPart('1b-4-hidden', t_1b_4, maxPoints=5, maxSeconds=3, description='hidden test case for all queries in QUERIES_SEG')
+
+    def t_1b_5():
+        query = 'basketballismyfavoritesport'
+        grader.requireIsEqual('basketball is my favorite sport', submission.segmentWords(query, unigramCost))
+    
+    grader.addBasicPart('1b-5-basic', t_1b_5, maxPoints=0, maxSeconds=1, description='custom')
 
 
 def add_parts_2(grader, submission):

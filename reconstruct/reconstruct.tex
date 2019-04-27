@@ -1,0 +1,240 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx,listings}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\begin{center}
+{\Large \textbf{Homework 3: Reconstruct}}
+
+\begin{tabular}{rl}
+\\
+Course: & CS 221 Spring 2019 \\
+Name: & Bryan Yaggi
+\end{tabular}
+\end{center}
+
+\section*{\normalsize Setup: n-gram Language Models and Uniform-Cost Search}
+
+ Our algorithm will base segmentation and insertion decisions on the cost of processed text according to a language model. A language model is some function of the processed text that captures its fluency.
+\smallskip
+
+A very common language model in NLP is an n-gram sequence model. This is a function that, given n consecutive words, gives a cost based on to the negative log likelihood that the $n$-th word appears just after the first $n−1$. The cost will always be positive, and lower costs indicate better fluency. As a simple example: in a case where $n=2$ and $c$ is our n-gram cost function, $c(big, fish)$ would be low, but $c(fish, fish)$ would be fairly high.
+\smallskip
+
+Furthermore, these costs are additive; for a unigram model $u(n=1)$, the cost assigned to $[w1, w2, w3, w4]$ is
+$$u(w1)+u(w2)+u(w3)+u(w4).$$
+
+For a bigram model $b(n=2)$, the cost is
+$$b(w0,w1)+b(w1,w2)+b(w2,w3)+b(w3,w4)$$
+where $w0$ is -BEGIN-, a special token that denotes the beginning of the sentence.
+\smallskip
+
+We have estimated $u$ and $b$ based on the statistics of $n$-grams in text. Note that any words not in the corpus are automatically assigned a high cost, so you do not have to worry about this part.
+\smallskip
+
+A note on low-level efficiency and expectations: this assignment was designed considering input sequences of length no greater than roughly 200 (characters, or list items, depending on the task). Of course, it's great if programs tractably manage larger inputs, but it isn't expected that such inputs not lead to inefficiency due to overwhelming state space growth. 
+
+\section*{\normalsize Problem 1: Word Segmentation}
+
+In word segmentation, you are given as input a string of alphabetical characters ([a-z]) without whitespace, and your goal is to insert spaces into this string such that the result is the most fluent according to the language model.
+
+\begin{enumerate}[label=(\alph*)]
+
+  \item  Consider the following greedy algorithm: Begin at the front of the string. Find the ending position for the next word that minimizes the language model cost. Repeat, beginning at the end of this chosen segment.
+
+Show that this greedy search is suboptimal. In particular, provide an example input string on which the greedy approach would fail to find the lowest-cost segmentation of the input.
+
+In creating this example, you are free to design the n-gram cost function (both the choice of n and the cost of any n-gram sequences) but costs must be positive and lower cost should indicate better fluency. Note that the cost function doesn't need to be explicitly defined. You can just point out the relative cost of different word sequences that are relevant to the example you provide. And your example should be based on a realistic English word sequence — don't simply use abstract symbols with designated costs. 
+
+	One example would be the input string ``basketballismyfavoritesport". If ``basket" has a lower cost than ``basketball", the result might be ``basket ball is my favorite sport" instead of ``basketball is my favorite sport". The algorithm will not look ahead to notice that ``basketball is" has a lower cost than ``basket ball is".
+  
+  \item coding
+
+\end{enumerate}
+
+\iffalse
+\section*{\normalsize Problem 2: Predicting Movie Ratings}
+
+Suppose that we are now interested in predicting a numeric rating for each movie review. We will use a non-linear predictor that takes a movie review $x$ and returns $\sigma(\mathbf{w} \cdot \phi(x))$, where $\sigma(z)=(1+e^{-z})^{-1}$ is the logistic function that squashes a real number to the range $(0,1)$. Suppose that we wish to use the squared loss. For this problem, assume that the movie rating $y$ is a real-valued variable in the range $[0,1]$.
+
+\begin{enumerate}[label=(\alph*)]
+
+  \item Write out the expression for $Loss(x, y, \mathbf{w})$.
+  
+  \begin{align*}
+  Loss_{squared} (x, y, \mathbf{w}) &= (f_w(x) - y)^2\\
+  &= (\sigma(\mathbf{w} \cdot \phi(x)) - y)^2\\
+  &= ((1 + e^{-w \cdot \phi(x)})^{-1} - y)^2
+  \end{align*}
+  
+  \item Compute the gradient of the loss with respect to $w$. Hint: you can write the answer in terms of the predicted value $p = \sigma(\mathbf{w} \cdot \phi(x))$.
+  
+  \begin{align*}
+  \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 2(p - y) \frac{\partial p}{\partial \mathbf{w}}\\
+  &= 2((1 + e^{-w \cdot \phi(x)})^{-1} - y)(-(1 + e^{-w \cdot \phi(x)})^{-2})(e^{-w \cdot \phi(x)})(-\phi(x))\\
+  &= 2((1 + e^{-w \cdot \phi(x)})^{-1} - y)(1 + e^{-w \cdot \phi(x)})^{-2}e^{-w \cdot \phi(x)}\phi(x)
+  \end{align*}
+  
+  \item Suppose there is one datapoint $(x, y)$ with some given $\phi(x)$ and $y = 1$. Can you choose a $\mathbf{w}$ to make the magnitude of the gradient of the loss with respect to $\mathbf{w}$ arbitrarily small (i.e., minimize the magnitude of the gradient and make it asymptotically approach some value)? If so, how small? Can the magnitude of the gradient ever be exactly zero? You are allowed to make the magnitude of $\mathbf{w}$ arbitrarily large. Hint: try to understand intuitively what is going on and the contribution of each part of the expression. If you find yourself doing too much algebra, you're probably doing something suboptimal. Motivation: the reason why we're interested in the magnitude of the gradients is because it governs how far gradient descent will step. For example, if the gradient is close to zero when $\mathbf{w}$ is very far from the optimum, then it could take a long time for gradient descent to reach the optimum (if at all). This is known as the vanishing gradient problem when training neural networks.
+  
+  \begin{align*}
+  \lim_{w \to \infty} \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 0\\
+  \text{since} \lim_{w \to \infty} e^{-w \cdot \phi(x)} &= 0\\
+  \lim_{w \to -\infty} \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 0\\
+  \text{since} \lim_{w \to -\infty} ((1 + e^{-w \cdot \phi(x)})^{-2} &= 0
+  \end{align*}
+  
+  The gradient will asymptotically reach 0, but never truly be 0.
+  
+  \item  Assuming the same data point as above, what is the largest magnitude that the gradient can take? Leave your answer in terms of $\lVert \phi(x) \rVert$.
+
+  \begin{align*}
+  \lVert \nabla_w Loss_{squared} (x, y, \mathbf{w}) \rVert &= 2(p - y) p^2 (1 - p) \lVert \phi(x) \rVert\\
+  \lVert \nabla_w Loss_{squared} (x, y = 1, \mathbf{w}) \rVert &= 2(p - 1) p^2 (1 - p) \lVert \phi(x) \rVert\\
+  &= (-2p^4 + 4p^3 -2p^2) \lVert \phi(x) \rVert\\
+  \nabla_w^2 L_{squared} (x, y = 1, \mathbf{w}) &= -8p^3 + 12p^2 - 4p = 0 \implies p = 1, \frac{1}{2}\\
+  max(\lVert \nabla_w Loss_{squared} (x, y = 1, \mathbf{w}) \rVert) &= -\frac{1}{8} \lVert \phi(x) \rVert
+  \end{align*}
+  
+  \item The problem with the loss function we have defined so far is that is it is non-convex, which means that gradient descent is not guaranteed to find the global minimum, and in general these types of problems can be difficult to solve. So let us try to reformulate the problem as plain old linear regression. Suppose you have a dataset $\mathbf{D}$ consisting of $(x,y)$ pairs, and that there exists a weight vector $\mathbf{w}$ that yields zero loss on this dataset. Show that there is an easy transformation to a modified dataset $\mathbf{D'}$ of $(x,y')$ pairs such that performing least squares regression (using a linear predictor and the squared loss) on $\mathbf{D'}$ converges to a vector $\mathbf{w^*}$ that yields zero loss on $\mathbf{D'}$. Concretely, write an expression for $y'$ in terms of $y$ and justify this choice. This expression should not be a function of $\mathbf{w}$.
+  
+  The logit function is the inverse of the sigmoid function and converts from $[0,1]$ to $[-\infty,+\infty]$.
+  
+  $$y' = logit(y) = log(\frac{y}{1 - y})$$
+
+\end{enumerate}
+
+\section*{\normalsize Problem 3: Sentiment Classification}
+
+In this problem, we will build a binary linear classifier that reads movie reviews and guesses whether they are ``positive" or ``negative." In this problem, you must implement the functions without using libraries like Scikit-learn.
+
+\begin{enumerate}[label=(\alph*)]
+
+  \item coding
+  \item coding
+  \item coding
+  
+  \item When you run the grader.py on test case 3b-2, it should output a weights file and a error-analysis file. Look through some example incorrect predictions and for five of them, give a one-sentence explanation of why the classification was incorrect. What information would the classifier need to get these correct? In some sense, there's not one correct answer, so don't overthink this problem. The main point is to convey intuition about the problem.
+
+	Review 1: home alone goes hollywood , a funny premise until the kids start pulling off stunts not even steven spielberg would know how to do . besides , real movie producers aren't this nice .\\
+Truth: -1, Prediction: 1 [WRONG]
+
+	It is tough to determine the sentiment of this review via individual words alone.
+
+	Review 2: a perfectly competent and often imaginative film that lacks what little lilo \& stitch had in spades -- charisma .\\
+Truth: 1, Prediction: -1 [WRONG]
+
+	This review had several stop-words that were weighted heavily negative.
+
+	Review 3: a heady , biting , be-bop ride through nighttime manhattan , a loquacious videologue of the modern male and the lengths to which he'll go to weave a protective cocoon around his own ego .\\
+Truth: 1, Prediction: -1 [WRONG]
+
+	The vocabulary in this review is advanced, so many of the important words did not have significant weights assigned to them. Also, there were many stop-words heavily weighted negative.
+
+	Review 4: 'it's painful to watch witherspoon's talents wasting away inside unnecessary films like legally blonde and sweet home abomination , i mean , alabama . '\\
+Truth: -1, Prediction: 1 [WRONG]
+
+	Several of the movie title words were heavily weighted positive. ``Painful" was curiously weighted heavily positive.
+
+	Review 5: dull , if not devoid of wit , this shaggy dog longs to frisk through the back alleys of history , but scarcely manages more than a modest , snoozy charm .\\
+Truth: -1, Prediction: 1 [WRONG]
+
+	Consideration of word proximity is important in this review. Phrases like ``devoid of wit", ``scarcely manages", and ``snoozy charm" should all be negative, but the end words are weighted heavily positive, which leads to the review's positive sentiment score.
+	
+	\item coding
+	
+	\item Run your linear predictor with feature extractor \texttt{extractCharacterFeatures}. Experiment with different values of n to see which one produces the smallest test error. You should observe that this error is nearly as small as that produced by word features. How do you explain this? Construct a review (one sentence max) in which character n-grams probably outperform word features, and briefly explain why this is so.
+	
+	The predictor worked best with n between 5-7. This value is large enough to capture word proximity and most short words. If n is smaller, the n-grams are meaningless and if they are larger, they would be too unique.
+	
+	This approach would work well on a review like ``It's not good." The n-gram ``notgood" would be weighted negative. 
+
+\end{enumerate}
+
+\section*{\normalsize Problem 4: K-Means Clustering}
+
+Suppose we have a feature extractor $\phi$ that produces 2-dimensional feature vectors, and a toy dataset $D_{train} = \{x1, x2, x3, x4\}$ with
+
+\begin{align*}
+\phi(x_1) &= [1, 0]\\
+\phi(x_2) &= [1, 2]\\
+\phi(x_3) &= [3, 0]\\
+\phi(x_4) &= [2, 2]\\
+\end{align*}
+
+\begin{enumerate}[label=(\alph*)]
+
+	\item Run 2-means on this dataset until convergence. Please show your work. What are the final cluster assignments $z$ and cluster centers $\mu$? Run this algorithm twice with the following initial centers:
+	\begin{enumerate}[label=(\arabic*)]
+	
+	\item $\mu_1 = [2, 3], \mu_2 = [2, -1]$
+
+	Epoch 1:\\
+	Step 1: Assign feature vectors to clusters.
+	\begin{align*}
+	\lVert \phi(x_1) - \mu_1 \rVert^2 &= 10\\
+	\lVert \phi(x_1) - \mu_2 \rVert^2 &= 2 \implies z_1 = \mu_2\\
+	\lVert \phi(x_2) - \mu_1 \rVert^2 &= 2\\
+	\lVert \phi(x_2) - \mu_2 \rVert^2 &= 10 \implies z_2 = \mu_1\\
+	\lVert \phi(x_3) - \mu_1 \rVert^2 &= 10\\
+	\lVert \phi(x_3) - \mu_2 \rVert^2 &= 2 \implies z_3 = \mu_2\\
+	\lVert \phi(x_4) - \mu_1 \rVert^2 &= 1\\
+	\lVert \phi(x_4) - \mu_2 \rVert^2 &= 9 \implies z_4 = \mu_1
+	\end{align*}
+	
+	Step 2: Find new means for each cluster
+	\begin{align*}
+	\mu_1 = \frac{[1, 2] + [2, 2]}{2} = [\frac{3}{2}, 2]\\
+	\mu_2 = \frac{[1, 0] + [3, 0]}{2} = [2, 0]\\
+	\end{align*}
+	
+	Epoch 2:\\
+	In step 1, the assignments do not change, so convergence has been reached.
+	
+	\item $\mu_1 = [0, 1], \mu_2 = [3, 2]$
+
+	Epoch 1:\\
+	Step 1: Assign feature vectors to clusters.
+	\begin{align*}
+	\lVert \phi(x_1) - \mu_1 \rVert^2 &= 2\\
+	\lVert \phi(x_1) - \mu_2 \rVert^2 &= 8 \implies z_1 = \mu_1\\
+	\lVert \phi(x_2) - \mu_1 \rVert^2 &= 2\\
+	\lVert \phi(x_2) - \mu_2 \rVert^2 &= 4 \implies z_2 = \mu_1\\
+	\lVert \phi(x_3) - \mu_1 \rVert^2 &= 10\\
+	\lVert \phi(x_3) - \mu_2 \rVert^2 &= 4 \implies z_3 = \mu_2\\
+	\lVert \phi(x_4) - \mu_1 \rVert^2 &= 5\\
+	\lVert \phi(x_4) - \mu_2 \rVert^2 &= 1 \implies z_4 = \mu_2
+	\end{align*}
+	
+	Step 2: Find new means for each cluster
+	\begin{align*}
+	\mu_1 = \frac{[1, 0] + [1, 2]}{2} = [1, 1]\\
+	\mu_2 = \frac{[3, 0] + [2, 2]}{2} = [\frac{5}{2}, 1]\\
+	\end{align*}
+	
+	Epoch 2:\\
+	In step 1, the assignments do not change, so convergence has been reached.	
+	
+	\end{enumerate}
+	
+	\item coding
+	
+	\item Sometimes, we have prior knowledge about which points should belong in the same cluster. Suppose we are given a set $S$ of example pairs $(i,j)$ which must be assigned to the same cluster. For example, suppose we have 5 examples; then $S=\{(1,5),(2,3),(3,4)\}$ says that examples 2, 3, and 4 must be in the same cluster and that examples 1 and 5 must be in the same cluster. Provide the modified k-means algorithm that performs alternating minimization on the reconstruction loss:
+$$\sum_i^n = \lVert \mu_{z_i} - \phi(x_i) \rVert^2$$
+where $\mu_{z_i}$ is the assigned centroid for the feature vector $\phi(x_i)$. Recall that alternating minimization is when we are optimizing two variables jointly by alternating which variable we keep constant.
+
+Before starting the k-means algorithm, a new example can be created from the mean of the examples that are known to belong to the same cluster. The original examples that are represented by new examples can be removed from the algorithm, but each of the new examples needs to be weighted by the number of original examples it represents when computing new means for each cluster. The total loss at the end will need to be calculated using only the original examples.
+
+\item What is the advantage of running k-means multiple times on the same dataset with the same K, but different random initializations?
+
+	Prevents the chance of only finding a local minimum.
+	
+\item If we scale all dimensions in our initial centroids and data points by some factor, are we guaranteed to retrieve the same clusters after running k-means (i.e. will the same data points belong to the same cluster before and after scaling)? What if we scale only certain dimensions? If your answer is yes, provide a short explanation. If it is no, provide a counterexample.
+
+	Yes, if all dimensions are scaled by the same factor, the clusters will remain the same. If only certain dimensions are scaled, the clusters will not necessarily remain the same. The distances between points are dependent on all dimensions.
+	
+\end{enumerate}
+\fi
+
+\end{document}

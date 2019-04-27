@@ -12,17 +12,23 @@ class SegmentationProblem(util.SearchProblem):
 
     def startState(self):
         # BEGIN_YOUR_CODE (our solution is 3 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        return 0 # initial char index of query
         # END_YOUR_CODE
 
     def isEnd(self, state):
         # BEGIN_YOUR_CODE (our solution is 4 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        return state == len(self.query)
         # END_YOUR_CODE
 
     def succAndCost(self, state):
         # BEGIN_YOUR_CODE (our solution is 12 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        options = []
+        for end in range(state + 1, len(self.query) + 1):
+            word = self.query[state:end]
+            cost = self.unigramCost(word)
+            newState = end
+            options.append((word, newState, cost))
+        return options
         # END_YOUR_CODE
 
 def segmentWords(query, unigramCost):
@@ -33,7 +39,7 @@ def segmentWords(query, unigramCost):
     ucs.solve(SegmentationProblem(query, unigramCost))
 
     # BEGIN_YOUR_CODE (our solution is 10 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return ' '.join(ucs.actions)
     # END_YOUR_CODE
 
 ############################################################
