@@ -53,58 +53,26 @@ In creating this example, you are free to design the n-gram cost function (both 
 
 \end{enumerate}
 
-\iffalse
-\section*{\normalsize Problem 2: Predicting Movie Ratings}
+\section*{\normalsize Problem 2: Vowel Insertion}
 
-Suppose that we are now interested in predicting a numeric rating for each movie review. We will use a non-linear predictor that takes a movie review $x$ and returns $\sigma(\mathbf{w} \cdot \phi(x))$, where $\sigma(z)=(1+e^{-z})^{-1}$ is the logistic function that squashes a real number to the range $(0,1)$. Suppose that we wish to use the squared loss. For this problem, assume that the movie rating $y$ is a real-valued variable in the range $[0,1]$.
+Now you are given a sequence of English words with their vowels missing (A, E, I, O, and U; never Y). Your task is to place vowels back into these words in a way that maximizes sentence fluency (i.e., that minimizes sentence cost). For this task, you will use a bigram cost function.
+\smallskip
+
+You are also given a mapping \texttt{possibleFills} that maps any vowel-free word to a set of possible reconstructions (complete words). For example, \texttt{possibleFills(`fg')} returns set([`fugue', `fog']). 
 
 \begin{enumerate}[label=(\alph*)]
 
-  \item Write out the expression for $Loss(x, y, \mathbf{w})$.
-  
-  \begin{align*}
-  Loss_{squared} (x, y, \mathbf{w}) &= (f_w(x) - y)^2\\
-  &= (\sigma(\mathbf{w} \cdot \phi(x)) - y)^2\\
-  &= ((1 + e^{-w \cdot \phi(x)})^{-1} - y)^2
-  \end{align*}
-  
-  \item Compute the gradient of the loss with respect to $w$. Hint: you can write the answer in terms of the predicted value $p = \sigma(\mathbf{w} \cdot \phi(x))$.
-  
-  \begin{align*}
-  \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 2(p - y) \frac{\partial p}{\partial \mathbf{w}}\\
-  &= 2((1 + e^{-w \cdot \phi(x)})^{-1} - y)(-(1 + e^{-w \cdot \phi(x)})^{-2})(e^{-w \cdot \phi(x)})(-\phi(x))\\
-  &= 2((1 + e^{-w \cdot \phi(x)})^{-1} - y)(1 + e^{-w \cdot \phi(x)})^{-2}e^{-w \cdot \phi(x)}\phi(x)
-  \end{align*}
-  
-  \item Suppose there is one datapoint $(x, y)$ with some given $\phi(x)$ and $y = 1$. Can you choose a $\mathbf{w}$ to make the magnitude of the gradient of the loss with respect to $\mathbf{w}$ arbitrarily small (i.e., minimize the magnitude of the gradient and make it asymptotically approach some value)? If so, how small? Can the magnitude of the gradient ever be exactly zero? You are allowed to make the magnitude of $\mathbf{w}$ arbitrarily large. Hint: try to understand intuitively what is going on and the contribution of each part of the expression. If you find yourself doing too much algebra, you're probably doing something suboptimal. Motivation: the reason why we're interested in the magnitude of the gradients is because it governs how far gradient descent will step. For example, if the gradient is close to zero when $\mathbf{w}$ is very far from the optimum, then it could take a long time for gradient descent to reach the optimum (if at all). This is known as the vanishing gradient problem when training neural networks.
-  
-  \begin{align*}
-  \lim_{w \to \infty} \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 0\\
-  \text{since} \lim_{w \to \infty} e^{-w \cdot \phi(x)} &= 0\\
-  \lim_{w \to -\infty} \nabla_w Loss_{squared} (x, y, \mathbf{w}) &= 0\\
-  \text{since} \lim_{w \to -\infty} ((1 + e^{-w \cdot \phi(x)})^{-2} &= 0
-  \end{align*}
-  
-  The gradient will asymptotically reach 0, but never truly be 0.
-  
-  \item  Assuming the same data point as above, what is the largest magnitude that the gradient can take? Leave your answer in terms of $\lVert \phi(x) \rVert$.
+  \item  Consider the following greedy-algorithm: from left to right, repeatedly pick the immediate-best vowel insertion for current vowel-free word given the insertion that was chosen for the previous vowel-free word. This algorithm does not take into account future insertions beyond the current word.
 
-  \begin{align*}
-  \lVert \nabla_w Loss_{squared} (x, y, \mathbf{w}) \rVert &= 2(p - y) p^2 (1 - p) \lVert \phi(x) \rVert\\
-  \lVert \nabla_w Loss_{squared} (x, y = 1, \mathbf{w}) \rVert &= 2(p - 1) p^2 (1 - p) \lVert \phi(x) \rVert\\
-  &= (-2p^4 + 4p^3 -2p^2) \lVert \phi(x) \rVert\\
-  \nabla_w^2 L_{squared} (x, y = 1, \mathbf{w}) &= -8p^3 + 12p^2 - 4p = 0 \implies p = 1, \frac{1}{2}\\
-  max(\lVert \nabla_w Loss_{squared} (x, y = 1, \mathbf{w}) \rVert) &= -\frac{1}{8} \lVert \phi(x) \rVert
-  \end{align*}
+Show, as in question 1-a, that this greedy algorithm is suboptimal, by providing a realistic counter-example using English text. Make any assumptions you'd like about possibleFills and the bigram cost function, but bigram costs must remain positive.
+
+	An example would be the input string ``Ct njys pttng dgs" for ``Cate enjoys petting dogs". ``petting" would not likely be chosen as the vowel-completed word for ``pttng" without noticing the following word is likely ``dogs".
   
-  \item The problem with the loss function we have defined so far is that is it is non-convex, which means that gradient descent is not guaranteed to find the global minimum, and in general these types of problems can be difficult to solve. So let us try to reformulate the problem as plain old linear regression. Suppose you have a dataset $\mathbf{D}$ consisting of $(x,y)$ pairs, and that there exists a weight vector $\mathbf{w}$ that yields zero loss on this dataset. Show that there is an easy transformation to a modified dataset $\mathbf{D'}$ of $(x,y')$ pairs such that performing least squares regression (using a linear predictor and the squared loss) on $\mathbf{D'}$ converges to a vector $\mathbf{w^*}$ that yields zero loss on $\mathbf{D'}$. Concretely, write an expression for $y'$ in terms of $y$ and justify this choice. This expression should not be a function of $\mathbf{w}$.
-  
-  The logit function is the inverse of the sigmoid function and converts from $[0,1]$ to $[-\infty,+\infty]$.
-  
-  $$y' = logit(y) = log(\frac{y}{1 - y})$$
+  \item coding
 
 \end{enumerate}
 
+\iffalse
 \section*{\normalsize Problem 3: Sentiment Classification}
 
 In this problem, we will build a binary linear classifier that reads movie reviews and guesses whether they are ``positive" or ``negative." In this problem, you must implement the functions without using libraries like Scikit-learn.

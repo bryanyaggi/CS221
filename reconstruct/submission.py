@@ -53,22 +53,38 @@ class VowelInsertionProblem(util.SearchProblem):
 
     def startState(self):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        index = 0
+        previousWord = wordsegUtil.SENTENCE_BEGIN
+        return (index, previousWord)
         # END_YOUR_CODE
 
     def isEnd(self, state):
         # BEGIN_YOUR_CODE (our solution is 5 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        return state[0] == len(self.queryWords)
         # END_YOUR_CODE
 
     def succAndCost(self, state):
         # BEGIN_YOUR_CODE (our solution is 16 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        options = []
+        possibleWords = self.possibleFills(self.queryWords[state[0]])
+        if len(possibleWords) == 0: # if no possibleWords found
+            possibleWords.add(self.queryWords[state[0]]) # add vowel-free word
+        for possibleWord in possibleWords:
+            cost = self.bigramCost(state[1], possibleWord)
+            newState = (state[0] + 1, possibleWord)
+            options.append((possibleWord, newState, cost))
+        return options
         # END_YOUR_CODE
 
 def insertVowels(queryWords, bigramCost, possibleFills):
     # BEGIN_YOUR_CODE (our solution is 3 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    if len(queryWords) == 0:
+        return ''
+
+    ucs = util.UniformCostSearch(verbose=0)
+    ucs.solve(VowelInsertionProblem(queryWords, bigramCost, possibleFills))
+
+    return ' '.join(ucs.actions)
     # END_YOUR_CODE
 
 ############################################################
