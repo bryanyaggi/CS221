@@ -72,137 +72,45 @@ Show, as in question 1-a, that this greedy algorithm is suboptimal, by providing
 
 \end{enumerate}
 
-\iffalse
-\section*{\normalsize Problem 3: Sentiment Classification}
+\section*{\normalsize Problem 3: Putting It Together}
 
-In this problem, we will build a binary linear classifier that reads movie reviews and guesses whether they are ``positive" or ``negative." In this problem, you must implement the functions without using libraries like Scikit-learn.
+We'll now see that it's possible to solve both of these tasks at once. This time, you are given a whitespace- and vowel-free string of alphabetical characters. Your goal is to insert spaces and vowels into this string such that the result is as fluent as possible. As in the previous task, costs are based on a bigram cost function.
 
 \begin{enumerate}[label=(\alph*)]
 
-  \item coding
-  \item coding
+  \item Consider a search problem for finding the optimal space and vowel insertions. Formalize the problem as a search problem; what are the states, actions, costs, initial state, and end test? Try to find a minimal representation of the states.
+  
+  The state will need to include the character index and previous verb-inserted word. The action will be the verb-inserted word created. The cost will be the bigram cost of the previous word and verb-inserted word created. The initial state will include the character index 0 and previous word \texttt{wordsegUtil.SENTENCE\_BEGIN}. The final state will be such that the character index is \texttt{len(query)}.
+  
   \item coding
   
-  \item When you run the grader.py on test case 3b-2, it should output a weights file and a error-analysis file. Look through some example incorrect predictions and for five of them, give a one-sentence explanation of why the classification was incorrect. What information would the classifier need to get these correct? In some sense, there's not one correct answer, so don't overthink this problem. The main point is to convey intuition about the problem.
+  \item  Let's find a way to speed up joint space and vowel insertion with A*. Recall that one way to find the heuristic function $h(s)$ for A* is to define a relaxed search problem $P_{rel}$ where $Cost_{rel}(s,a) \leq Cost(s,a)$ and letting $h(s)=FutureCost_{rel}(s)$.
 
-	Review 1: home alone goes hollywood , a funny premise until the kids start pulling off stunts not even steven spielberg would know how to do . besides , real movie producers aren't this nice .\\
-Truth: -1, Prediction: 1 [WRONG]
+Given a bigram model $b$ (a function that takes any $(w',w)$ and returns a number), define a unigram model $u_b$ (a function that takes any $w$ and returns a number) based on $b$. Use this function $u_b$ to help define $P_{rel}$.
 
-	It is tough to determine the sentiment of this review via individual words alone.
+One example of a $u_b$ is $u_b(w)=b(w,w)$. However this will not lead to a consistent heuristic because $Cost_{rel}(s,a)$ is not guaranteed to be less than or equal to $Cost(s,a)$ with this scheme.
 
-	Review 2: a perfectly competent and often imaginative film that lacks what little lilo \& stitch had in spades -- charisma .\\
-Truth: 1, Prediction: -1 [WRONG]
+Explicitly define the states, actions, cost, start state, and end state of the relaxed problem and explain why $h(s)$ is consistent.
 
-	This review had several stop-words that were weighted heavily negative.
+Note: Don't confuse the $u_b$ defined here with the unigram cost function $u$ used in Problem 1.
 
-	Review 3: a heady , biting , be-bop ride through nighttime manhattan , a loquacious videologue of the modern male and the lengths to which he'll go to weave a protective cocoon around his own ego .\\
-Truth: 1, Prediction: -1 [WRONG]
+Hint: If $u_b$ only accepts a single $w$, do we need to keep track of the previous word in our state?
 
-	The vocabulary in this review is advanced, so many of the important words did not have significant weights assigned to them. Also, there were many stop-words heavily weighted negative.
+	For the relaxed problem, one option is to define $u_b(w) = min (b(w', w) \mid w' \in corpus)$. $Cost_{rel} = u_b$ is guaranteed to be $\leq Cost(s,a)$ since $Cost(s,a) = b(w', w)$. The relaxed problem will be solved in reverse. The state will be the character index of query since the adjacent word is not needed to compute the relaxed cost function. The start state will be \texttt{len(query)}, and the end state will be 0. The actions will be words created. The relaxed problem will be solved to find the $FutureCost_{rel}(s)$. Then, A* can be run using $h(s) = FutureCost_{rel}(s)$.
 
-	Review 4: 'it's painful to watch witherspoon's talents wasting away inside unnecessary films like legally blonde and sweet home abomination , i mean , alabama . '\\
-Truth: -1, Prediction: 1 [WRONG]
-
-	Several of the movie title words were heavily weighted positive. ``Painful" was curiously weighted heavily positive.
-
-	Review 5: dull , if not devoid of wit , this shaggy dog longs to frisk through the back alleys of history , but scarcely manages more than a modest , snoozy charm .\\
-Truth: -1, Prediction: 1 [WRONG]
-
-	Consideration of word proximity is important in this review. Phrases like ``devoid of wit", ``scarcely manages", and ``snoozy charm" should all be negative, but the end words are weighted heavily positive, which leads to the review's positive sentiment score.
+	\item  We defined many different search techniques in class, so let's see how they relate to one another.
 	
-	\item coding
-	
-	\item Run your linear predictor with feature extractor \texttt{extractCharacterFeatures}. Experiment with different values of n to see which one produces the smallest test error. You should observe that this error is nearly as small as that produced by word features. How do you explain this? Construct a review (one sentence max) in which character n-grams probably outperform word features, and briefly explain why this is so.
-	
-	The predictor worked best with n between 5-7. This value is large enough to capture word proximity and most short words. If n is smaller, the n-grams are meaningless and if they are larger, they would be too unique.
-	
-	This approach would work well on a review like ``It's not good." The n-gram ``notgood" would be weighted negative. 
-
-\end{enumerate}
-
-\section*{\normalsize Problem 4: K-Means Clustering}
-
-Suppose we have a feature extractor $\phi$ that produces 2-dimensional feature vectors, and a toy dataset $D_{train} = \{x1, x2, x3, x4\}$ with
-
-\begin{align*}
-\phi(x_1) &= [1, 0]\\
-\phi(x_2) &= [1, 2]\\
-\phi(x_3) &= [3, 0]\\
-\phi(x_4) &= [2, 2]\\
-\end{align*}
-
-\begin{enumerate}[label=(\alph*)]
-
-	\item Run 2-means on this dataset until convergence. Please show your work. What are the final cluster assignments $z$ and cluster centers $\mu$? Run this algorithm twice with the following initial centers:
 	\begin{enumerate}[label=(\arabic*)]
-	
-	\item $\mu_1 = [2, 3], \mu_2 = [2, -1]$
-
-	Epoch 1:\\
-	Step 1: Assign feature vectors to clusters.
-	\begin{align*}
-	\lVert \phi(x_1) - \mu_1 \rVert^2 &= 10\\
-	\lVert \phi(x_1) - \mu_2 \rVert^2 &= 2 \implies z_1 = \mu_2\\
-	\lVert \phi(x_2) - \mu_1 \rVert^2 &= 2\\
-	\lVert \phi(x_2) - \mu_2 \rVert^2 &= 10 \implies z_2 = \mu_1\\
-	\lVert \phi(x_3) - \mu_1 \rVert^2 &= 10\\
-	\lVert \phi(x_3) - \mu_2 \rVert^2 &= 2 \implies z_3 = \mu_2\\
-	\lVert \phi(x_4) - \mu_1 \rVert^2 &= 1\\
-	\lVert \phi(x_4) - \mu_2 \rVert^2 &= 9 \implies z_4 = \mu_1
-	\end{align*}
-	
-	Step 2: Find new means for each cluster
-	\begin{align*}
-	\mu_1 = \frac{[1, 2] + [2, 2]}{2} = [\frac{3}{2}, 2]\\
-	\mu_2 = \frac{[1, 0] + [3, 0]}{2} = [2, 0]\\
-	\end{align*}
-	
-	Epoch 2:\\
-	In step 1, the assignments do not change, so convergence has been reached.
-	
-	\item $\mu_1 = [0, 1], \mu_2 = [3, 2]$
-
-	Epoch 1:\\
-	Step 1: Assign feature vectors to clusters.
-	\begin{align*}
-	\lVert \phi(x_1) - \mu_1 \rVert^2 &= 2\\
-	\lVert \phi(x_1) - \mu_2 \rVert^2 &= 8 \implies z_1 = \mu_1\\
-	\lVert \phi(x_2) - \mu_1 \rVert^2 &= 2\\
-	\lVert \phi(x_2) - \mu_2 \rVert^2 &= 4 \implies z_2 = \mu_1\\
-	\lVert \phi(x_3) - \mu_1 \rVert^2 &= 10\\
-	\lVert \phi(x_3) - \mu_2 \rVert^2 &= 4 \implies z_3 = \mu_2\\
-	\lVert \phi(x_4) - \mu_1 \rVert^2 &= 5\\
-	\lVert \phi(x_4) - \mu_2 \rVert^2 &= 1 \implies z_4 = \mu_2
-	\end{align*}
-	
-	Step 2: Find new means for each cluster
-	\begin{align*}
-	\mu_1 = \frac{[1, 0] + [1, 2]}{2} = [1, 1]\\
-	\mu_2 = \frac{[3, 0] + [2, 2]}{2} = [\frac{5}{2}, 1]\\
-	\end{align*}
-	
-	Epoch 2:\\
-	In step 1, the assignments do not change, so convergence has been reached.	
-	
+		\item Is UCS a special case of A*? Explain why or why not.
+		
+		Yes, it can be considered so because UCS is the same algorithm as A* with $h(s) = 0$.
+		
+		\item Is BFS a special case of UCS? Explain why or why not.	
+		
+		Yes, UCS would work the same as BFS for a problem where each action has the same cost and there are no cycles. UCS searches along the minimum path cost, whereas BFS searches all nodes in order by the number of hops they are from the start.
+		
 	\end{enumerate}
-	
-	\item coding
-	
-	\item Sometimes, we have prior knowledge about which points should belong in the same cluster. Suppose we are given a set $S$ of example pairs $(i,j)$ which must be assigned to the same cluster. For example, suppose we have 5 examples; then $S=\{(1,5),(2,3),(3,4)\}$ says that examples 2, 3, and 4 must be in the same cluster and that examples 1 and 5 must be in the same cluster. Provide the modified k-means algorithm that performs alternating minimization on the reconstruction loss:
-$$\sum_i^n = \lVert \mu_{z_i} - \phi(x_i) \rVert^2$$
-where $\mu_{z_i}$ is the assigned centroid for the feature vector $\phi(x_i)$. Recall that alternating minimization is when we are optimizing two variables jointly by alternating which variable we keep constant.
 
-Before starting the k-means algorithm, a new example can be created from the mean of the examples that are known to belong to the same cluster. The original examples that are represented by new examples can be removed from the algorithm, but each of the new examples needs to be weighted by the number of original examples it represents when computing new means for each cluster. The total loss at the end will need to be calculated using only the original examples.
-
-\item What is the advantage of running k-means multiple times on the same dataset with the same K, but different random initializations?
-
-	Prevents the chance of only finding a local minimum.
-	
-\item If we scale all dimensions in our initial centroids and data points by some factor, are we guaranteed to retrieve the same clusters after running k-means (i.e. will the same data points belong to the same cluster before and after scaling)? What if we scale only certain dimensions? If your answer is yes, provide a short explanation. If it is no, provide a counterexample.
-
-	Yes, if all dimensions are scaled by the same factor, the clusters will remain the same. If only certain dimensions are scaled, the clusters will not necessarily remain the same. The distances between points are dependent on all dimensions.
-	
 \end{enumerate}
-\fi
 
 \end{document}
