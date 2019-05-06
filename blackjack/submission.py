@@ -11,13 +11,17 @@ class CounterexampleMDP(util.MDP):
     # Return a value of any type capturing the start state of the MDP.
     def startState(self):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        return 0
         # END_YOUR_CODE
 
     # Return a list of strings representing actions possible from |state|.
     def actions(self, state):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        result = ['']
+        if not(state == 1 or state == -1):
+            result.append('+1')
+            result.append('-1')
+        return result
         # END_YOUR_CODE
 
     # Given a |state| and |action|, return a list of (newState, prob, reward) tuples
@@ -25,13 +29,41 @@ class CounterexampleMDP(util.MDP):
     # Remember that if |state| is an end state, you should return an empty list [].
     def succAndProbReward(self, state, action):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        result = []
+        if not(state == 1 or state == -1):
+            if action == '+1':
+                # Result 1
+                newState = state + 1
+                prob = .2
+                reward = 0
+                if newState == 1:
+                    reward = 100
+                result.append((newState, prob, reward))
+                # Result 2
+                newState = state - 1
+                prob = .8
+                reward = 0
+                result.append((newState, prob, reward))
+            elif action == '-1':
+                # Result 1
+                newState = state - 1
+                prob = .9
+                reward = 0
+                result.append((newState, prob, reward))
+                # Result 2
+                newState = state + 1
+                prob = .1
+                reward = 0
+                if newState == 1:
+                    reward = 100
+                result.append((newState, prob, reward))
+        return result
         # END_YOUR_CODE
 
     # Set the discount factor (float or integer) for your counterexample MDP.
     def discount(self):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        return 1.
         # END_YOUR_CODE
 
 ############################################################

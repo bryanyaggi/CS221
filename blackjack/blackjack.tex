@@ -137,26 +137,72 @@ If your action results in transitioning to state $-2$, then you receive a reward
   	\end{tabular}
 
 \end{enumerate}
-\iffalse
-\section*{\normalsize Problem 2: Vowel Insertion}
 
-Now you are given a sequence of English words with their vowels missing (A, E, I, O, and U; never Y). Your task is to place vowels back into these words in a way that maximizes sentence fluency (i.e., that minimizes sentence cost). For this task, you will use a bigram cost function.
+\section*{\normalsize Problem 2: Transforming MDPs}
+
+Let's implement value iteration to compute the optimal policy on an arbitrary MDP. Later, we'll create the specific MDP for Blackjack. 
 \smallskip
-
-You are also given a mapping \texttt{possibleFills} that maps any vowel-free word to a set of possible reconstructions (complete words). For example, \texttt{possibleFills(`fg')} returns set([`fugue', `fog']). 
 
 \begin{enumerate}[label=(\alph*)]
 
-  \item  Consider the following greedy-algorithm: from left to right, repeatedly pick the immediate-best vowel insertion for current vowel-free word given the insertion that was chosen for the previous vowel-free word. This algorithm does not take into account future insertions beyond the current word.
-
-Show, as in question 1-a, that this greedy algorithm is suboptimal, by providing a realistic counter-example using English text. Make any assumptions you'd like about possibleFills and the bigram cost function, but bigram costs must remain positive.
-
-	An example would be the input string ``Ct njys pttng dgs" for ``Cate enjoys petting dogs". ``petting" would not likely be chosen as the vowel-completed word for ``pttng" without noticing the following word is likely ``dogs".
+  \item If we add noise to the transitions of an MDP, does the optimal value always get worse? Specifically, consider an MDP with reward function $Reward(s,a,s')$, states $States$, and transition function $T(s,a,s′)$. Let's define a new MDP which is identical to the original, except that on each action, with probability $\frac{1}{2}$, we randomly jump to one of the states that we could have reached before with positive probability. Formally, this modified transition function is:
   
-  \item coding
+  $$T'(s,a,s') = \frac{1}{2} T(s,a,s') + \frac{1}{2} \frac{1}{| \{ s'':T(s,a,s'')>0 \} |}$$
+  
+  Let $V_1$ be the optimal value function for the original MDP, and $V_2$ the optimal value function for the modified MDP. Is it always the case that $V_1(s_{start}) \geq V_2(s_{start})$? If so, prove it on the written portion and put return None for each of the code blocks. Otherwise, construct a counter example by filling out \texttt{CounterexampleMDP} in \texttt{submission.py}.
+  
+  This is not always the case. Here is a counterexample.
+  
+  \begin{center}
+	  \begin{tikzpicture}
+			\begin{scope}[every node/.style={circle,thick,draw}]
+	    		\node (-1) at (3,0) {$-1$};
+	    		\node (0) at (6,0) {$0$};
+	    		\node (1) at (9,0) {$1$};
+			\end{scope}
+			\begin{scope}[every node/.style={circle,thick,draw=red}]
+	    		\node (A) at (6,3) {$0,+1$};
+	    		\node (B) at (6,-3) {$0,-1$};
+			\end{scope}
+	
+			\begin{scope}[every node/.style={fill=white,circle},every edge/.style={draw=blue,thick}]
+				\path [->] (0) edge node {$+1$} (A);	    		
+	    		\path [->] (0) edge node {$-1$} (B);
+			\end{scope}
+			\begin{scope}[every node/.style={fill=white,circle},every edge/.style={draw=black,thick}]
+				\path [->] (A) edge node {$.2,100$} (1);	    		
+	    		\path [->] (A) edge node {$.8,0$} (-1);
+	    		\path [->] (B) edge node {$.1,100$} (1);
+	    		\path [->] (B) edge node {$.9,0$} (-1);
+			\end{scope}
+		\end{tikzpicture}
+	\end{center}
+	
+	\begin{tabular}{c | c c c}
+		$s$ & $-1$ & $0$ & $1$\\
+  		$V_1$ & $0$ & $20$ & $0$\\
+  		$V_2$ & $0$ & $35$ & $0$\\
+  	\end{tabular}
+  
+  \item Suppose we have an acyclic MDP for which we want to find the optimal value at each node. We could run value iteration, which would require multiple iterations -- but it would be nice to be more efficient for MDPs with this acyclic property. Briefly explain an algorithm that will allow us to compute $V_{opt}$ for each node with only a single pass over all the $(s,a,s')$ triples.
+  
+  The alogrithm would involve calculating $V_{opt}$ for the end states and working backwards to the start state.
+  
+  \item Suppose we have an MDP with states $States$ and a discount factor $\gamma < 1$, but we have an MDP solver that can only solve MDPs with discount factor of 1. How can we leverage the MDP solver to solve the original MDP?
+  
+  Let us define a new MDP with states $States'= States \cup \{o\}$, where $o$ is a new state. Let's use the same actions $Actions'(s) = Actions(s)$, but we need to keep the discount $\gamma' = 1$. Your job is to define new transition probabilities $T'(s,a,s')$ and rewards $Reward'(s,a,s')$ in terms of the old MDP such that the optimal values $V_{opt}(s)$ for all $s \in States$ are equal under the original MDP and the new MDP.
+  
+  Hint: If you're not sure how to approach this problem, go back to the notes from the first MDP lecture and read closely the slides on convergence, toward the end of the deck.
+  
+  From the notes: ``We can reinterpret the discount $\gamma < 1$ condition as introducing a new transition from each state to a special end state with probability $(1 - \gamma)$, multiplying all the other transition probabilities by $\gamma$, and setting the discount to 1. The interpretation is that with probability $1 - \gamma$, the MDP terminates at any state."
+  
+  \begin{align*}
+  		T'(s,a,s') &= \gamma T(s,a,s')\\
+  		Rewards'(s,a,s') &= Rewards(s,a,s')
+  \end{align*}
 
 \end{enumerate}
-
+\iffalse
 \section*{\normalsize Problem 3: Putting It Together}
 
 We'll now see that it's possible to solve both of these tasks at once. This time, you are given a whitespace- and vowel-free string of alphabetical characters. Your goal is to insert spaces and vowels into this string such that the result is as fluent as possible. As in the previous task, costs are based on a bigram cost function.

@@ -50,6 +50,7 @@ def test2a():
     mdp.computeStates()
     algorithm.solve(mdp, .001)
     newVal = algorithm.V[mdp.startState()]
+    print("originalVal = %.2g, newVal = %.2g" %(originalVal,newVal))
 grader.addHiddenPart('2a-hidden', test2a, 3, description="Hidden test for CounterexampleMDP. Ensure that V[startState] is greater after noise is added.")
 
 grader.addManualPart('2b', 3, description="Written question: single-pass algorithm for node values in acyclic MDP")
