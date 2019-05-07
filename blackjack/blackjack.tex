@@ -202,46 +202,31 @@ Let's implement value iteration to compute the optimal policy on an arbitrary MD
   \end{align*}
 
 \end{enumerate}
-\iffalse
-\section*{\normalsize Problem 3: Putting It Together}
 
-We'll now see that it's possible to solve both of these tasks at once. This time, you are given a whitespace- and vowel-free string of alphabetical characters. Your goal is to insert spaces and vowels into this string such that the result is as fluent as possible. As in the previous task, costs are based on a bigram cost function.
+\section*{\normalsize Problem 3: Peeking Blackjack}
 
 \begin{enumerate}[label=(\alph*)]
 
-  \item Consider a search problem for finding the optimal space and vowel insertions. Formalize the problem as a search problem; what are the states, actions, costs, initial state, and end test? Try to find a minimal representation of the states.
+  \item coding
   
-  The state will need to include the character index and previous verb-inserted word. The action will be the verb-inserted word created. The cost will be the bigram cost of the previous word and verb-inserted word created. The initial state will include the character index 0 and previous word \texttt{wordsegUtil.SENTENCE\_BEGIN}. The final state will be such that the character index is \texttt{len(query)}.
+  \item coding
+		
+\end{enumerate}
+\iffalse
+\section*{\normalsize Problem 4: Learning to Play Blackjack}
+
+So far, we've seen how MDP algorithms can take an MDP which describes the full dynamics of the game and return an optimal policy. But suppose you go into a casino, and no one tells you the rewards nor the transitions. We will see how reinforcement learning can allow you to play the game and learn its rules and strategy at the same time! 
+
+\begin{enumerate}[label=(\alph*)]
+
+  \item coding
+  
+  \item
   
   \item coding
   
-  \item  Let's find a way to speed up joint space and vowel insertion with A*. Recall that one way to find the heuristic function $h(s)$ for A* is to define a relaxed search problem $P_{rel}$ where $Cost_{rel}(s,a) \leq Cost(s,a)$ and letting $h(s)=FutureCost_{rel}(s)$.
-
-Given a bigram model $b$ (a function that takes any $(w',w)$ and returns a number), define a unigram model $u_b$ (a function that takes any $w$ and returns a number) based on $b$. Use this function $u_b$ to help define $P_{rel}$.
-
-One example of a $u_b$ is $u_b(w)=b(w,w)$. However this will not lead to a consistent heuristic because $Cost_{rel}(s,a)$ is not guaranteed to be less than or equal to $Cost(s,a)$ with this scheme.
-
-Explicitly define the states, actions, cost, start state, and end state of the relaxed problem and explain why $h(s)$ is consistent.
-
-Note: Don't confuse the $u_b$ defined here with the unigram cost function $u$ used in Problem 1.
-
-Hint: If $u_b$ only accepts a single $w$, do we need to keep track of the previous word in our state?
-
-	For the relaxed problem, one option is to define $u_b(w) = min (b(w', w) \mid w' \in corpus)$. $Cost_{rel} = u_b$ is guaranteed to be $\leq Cost(s,a)$ since $Cost(s,a) = b(w', w)$. The relaxed problem will be solved in reverse. The state will be the character index of query since the adjacent word is not needed to compute the relaxed cost function. The start state will be \texttt{len(query)}, and the end state will be 0. The actions will be words created. The relaxed problem will be solved to find the $FutureCost_{rel}(s)$. Then, A* can be run using $h(s) = FutureCost_{rel}(s)$.
-
-	\item  We defined many different search techniques in class, so let's see how they relate to one another.
-	
-	\begin{enumerate}[label=(\arabic*)]
-		\item Is UCS a special case of A*? Explain why or why not.
+  \item
 		
-		Yes, it can be considered so because UCS is the same algorithm as A* with $h(s) = 0$.
-		
-		\item Is BFS a special case of UCS? Explain why or why not.	
-		
-		Yes, UCS would work the same as BFS for a problem where each action has the same cost and there are no cycles. UCS searches along the minimum path cost, whereas BFS searches all nodes in order by the number of hops they are from the start.
-		
-	\end{enumerate}
-
 \end{enumerate}
 \fi
 \end{document}

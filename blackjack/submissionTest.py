@@ -112,8 +112,8 @@ class BasicGameMDP(util.MDP):
     def discount(self):
         return 1.
 
-def test3a():
-    print('3a')
+def test1a():
+    print('1a')
     mdp = BasicGameMDP()
     mdp.computeStates()
     algorithm = ValueIterationIters()
@@ -126,5 +126,26 @@ def test3a():
     for i in range(3):
         printResults(i)
 
+def test3a():
+    print('3a')
+    state = (0, None, (0, 0, 3))
+    print(all(cardCount == 0 for cardCount in state[2]))
+    tup = (1, 1, 1)
+    result = list(tup)
+    result[1] -= 1
+    print(tuple(result))
+    tup = (1, 2, 3)
+    tup = None
+    print(tup)
+
+def test3b():
+    def removeCardFromDeck(deckCardCounts, index):
+        deckCardCounts = list(deckCardCounts)
+        deckCardCounts[index] -= 1
+        return tuple(deckCardCounts)
+
+    print(removeCardFromDeck((1,1,1,1),1))
+
 if __name__ == '__main__':
-    test3a()
+    #test3a()
+    test3b()

@@ -111,7 +111,57 @@ class BlackjackMDP(util.MDP):
     #   don't include that state in the list returned by succAndProbReward.
     def succAndProbReward(self, state, action):
         # BEGIN_YOUR_CODE (our solution is 53 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        def removeCardFromDeck(deckCardCounts, index):
+            deckCardCounts = list(deckCardCounts)
+            deckCardCounts[index] -= 1
+            return tuple(deckCardCounts)
+
+        def checkForEndOfGame(totalCardValueInHand, deckCardCounts, numDeckCards):
+            reward = 0
+            if totalCardValueInHand > self.threshold: # check for bust
+                deckCardCounts = None
+            elif numDeckCards == 1: # no cards remaining
+                reward = totalCardValueInHand
+                deckCardCounts = None
+            return (deckCardCounts, reward)
+
+        result = []
+        if state[2] == None: # end state
+            return result
+        numDeckCards = sum(state[2])
+        if action == 'Take':
+            if state[1] != None:
+                totalCardValueInHand = state[0] + self.cardValues[state[1]]
+                deckCardCounts = removeCardFromDeck(state[2], state[1])
+                prob = 1.0
+                deckCardCounts, reward = checkForEndOfGame(totalCardValueInHand, deckCardCounts, numDeckCards)
+                newState = (totalCardValueInHand, None, deckCardCounts)
+                result.append((newState, prob, reward))
+            else:
+                for i in range(len(state[2])):
+                    if state[2][i] > 0:
+                        totalCardValueInHand = state[0] + self.cardValues[i]
+                        deckCardCounts = removeCardFromDeck(state[2], i)
+                        prob = 1. * state[2][i] / numDeckCards
+                        deckCardCounts, reward = checkForEndOfGame(totalCardValueInHand,
+                                deckCardCounts, numDeckCards)
+                        newState = (totalCardValueInHand, None, deckCardCounts)
+                        result.append((newState, prob, reward))
+        elif action == 'Peek':
+            if state[1] != None:
+                return result
+            for i in range(len(state[2])):
+                if state[2][i] > 0:
+                    prob = 1. * state[2][i] / numDeckCards
+                    reward = -self.peekCost
+                    newState = (state[0], i, state[2])
+                    result.append((newState, prob, reward))
+        elif action == 'Quit':
+            prob = 1.0
+            reward = state[0]
+            newState = (state[0], state[1], None)
+            result.append((newState, prob, reward))
+        return result
         # END_YOUR_CODE
 
     def discount(self):
@@ -126,7 +176,7 @@ def peekingMDP():
     optimal action at least 10% of the time.
     """
     # BEGIN_YOUR_CODE (our solution is 2 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return BlackjackMDP(cardValues=[1, 5, 21], multiplicity=15, threshold=20, peekCost=1)
     # END_YOUR_CODE
 
 ############################################################

@@ -97,6 +97,7 @@ def test3aHidden():
     startState = mdp.startState()
     alg = util.ValueIteration()
     alg.solve(mdp, .0001)
+    print("V[startState] = %.2g" %alg.V[startState])
 grader.addHiddenPart('3a-hidden', test3aHidden, 5, description="Hidden test for ValueIteration. Run ValueIteration on BlackjackMDP, then test if V[startState] is correct.")
 
 
@@ -109,8 +110,9 @@ def test3b():
     f = len([a for a in vi.pi.values() if a == 'Peek']) / float(len(vi.pi.values()))
     grader.requireIsGreaterThan(.1, f)
     # Feel free to uncomment these lines if you'd like to print out states/actions
-    # for k, v in vi.pi.iteritems():
-    #     print k, v
+    for k, v in vi.pi.iteritems():
+        print k, v
+    print(f)
 grader.addBasicPart('3b-basic', test3b, 4, description="Test for peekingMDP().  Ensure that in at least 10% of states, the optimal policy is to peek.")
 
 ############################################################
