@@ -224,7 +224,13 @@ class QLearningAlgorithm(util.RLAlgorithm):
     # self.getQ() to compute the current estimate of the parameters.
     def incorporateFeedback(self, state, action, reward, newState):
         # BEGIN_YOUR_CODE (our solution is 12 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        v = 0
+        if newState != None:
+            v = max(self.getQ(newState, action) for action in self.actions(newState))
+        residual = self.getQ(state, action) - (reward + self.discount * v)
+        featureVector = self.featureExtractor(state, action)
+        for feature in featureVector:
+            self.weights[feature[0]] -= self.getStepSize() * residual * feature[1]
         # END_YOUR_CODE
 
 # Return a single-element list containing a binary (indicator) feature

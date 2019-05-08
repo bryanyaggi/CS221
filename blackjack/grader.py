@@ -151,7 +151,10 @@ def test4aHidden():
     rl = submission.QLearningAlgorithm(mdp.actions, mdp.discount(),
                                    submission.identityFeatureExtractor,
                                    0.2)
-    util.simulate(mdp, rl, 30000)
+    util.simulate(mdp, rl, 30000, verbose=False)
+    print("Q(mdp.startState(), 'Take') = %g" %rl.getQ(mdp.startState(), 'Take'))
+    print("Q(mdp.startState(), 'Take') = %g" %rl.getQ(mdp.startState(), 'Peek'))
+    print("Q(mdp.startState(), 'Take') = %g" %rl.getQ(mdp.startState(), 'Quit'))
 
 grader.addHiddenPart('4a-hidden', test4aHidden, 3, maxSeconds=3, description="Hidden test for incorporateFeedback(). Run QLearningAlgorithm on smallMDP, then ensure that getQ returns reasonable value.")
 
