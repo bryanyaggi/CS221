@@ -146,6 +146,13 @@ def test3b():
 
     print(removeCardFromDeck((1,1,1,1),1))
 
+def test4c():
+    counts = (3, 2, 0, 1)
+    presence = tuple(int(count > 0) for count in counts)
+    print(counts)
+    print(presence)
+
 if __name__ == '__main__':
     #test3a()
-    test3b()
+    #test3b()
+    test4c()

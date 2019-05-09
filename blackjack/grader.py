@@ -167,6 +167,7 @@ grader.addManualPart('4b', 4, description="Written question: policy comparison f
 def run4bHelper():
     submission.simulate_QL_over_MDP(submission.smallMDP, submission.identityFeatureExtractor)
     submission.simulate_QL_over_MDP(submission.largeMDP, submission.identityFeatureExtractor)
+    submission.simulate_QL_over_MDP(submission.largeMDP, submission.blackjackFeatureExtractor)
 grader.addBasicPart('4b-helper', run4bHelper, 0, maxSeconds=60, description="Helper function to run Q-learning simulations for question 4b.")
 
 def test4c():

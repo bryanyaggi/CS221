@@ -221,11 +221,29 @@ So far, we've seen how MDP algorithms can take an MDP which describes the full d
 
   \item coding
   
-  \item
+  \item Now let's apply Q-learning to an MDP and see how well it performs in comparison with value iteration. First, call \texttt{simulate} using your Q-learning code and the \texttt{identityFeatureExtractor()} on the MDP \texttt{smallMDP} (defined for you in \texttt{submission.py}), with 30000 trials and default \texttt{explorationProb}.
+  
+  How does the Q-learning policy compare with a policy learned by value iteration (i.e., for how many states do they produce a different action)? (Don't forget to set the \texttt{explorationProb} of your Q-learning algorithm to 0 after learning the policy.) Now run \texttt{simulate()} on \texttt{largeMDP}, again with 30,000 trials. How does the policy learned in this case compare to the policy learned by value iteration? What went wrong?
+  
+  Q-learning and value iteration performed similarly on \texttt{smallMDP}. Approximately 3\% of the states were assigned differing actions. Q-learning did not perform as well on \texttt{largeMDP}. About 30\% of the states were assigned differing actions. There were many more states in \texttt{largeMDP}, and the feature extractor \texttt{identityFeatureExtractor} is not good at generalizing.
   
   \item coding
   
-  \item
+  \item Sometimes, we might reasonably wonder how an optimal policy learned for one MDP might perform if applied to another MDP with similar structure but slightly different characteristics. For example, imagine that you created an MDP to choose an optimal strategy for playing "traditional" blackjack, with a standard card deck and a threshold of 21. You're living it up in Vegas every weekend, but the casinos get wise to your approach and decide to make a change to the game to disrupt your strategy: going forward, the threshold for the blackjack tables is 17 instead of 21. If you continued playing the modified game with your original policy, how well would you do? (This is just a hypothetical example; we won't look specifically at the blackjack game in this problem.)
+
+	To explore this scenario, let's take a brief look at how a policy learned using value iteration responds to a change in the rules of the MDP.
+
+	\begin{itemize}
+		\item First, run value iteration on the \texttt{originalMDP} (defined for you in \texttt{submission.py}) to compute an optimal policy for that MDP.
+		\item Next, simulate your policy on \texttt{newThresholdMDP} (also defined for you in \texttt{submission.py}) by calling simulate with an instance of \texttt{FixedRLAlgorithm} that has been instantiated using the policy you computed with value iteration. What is the expected reward from this simulation? Hint: read the documentation (comments) for the \texttt{simulate} function in util.py, and look specifically at the format of the function's return value.
+		\item Now try simulating Q-learning on \texttt{originalMDP} (30,000 trials). Then, using the learned parameters, run Q-learning again on \texttt{newThresholdMDP} (again, 30000 trials). What is your expected reward under the new Q-learning policy? Provide some explanation for how the rewards compare with when \texttt{FixedRLAlgorithm} is used. Why they are different?
+		
+		(Below is the previous version of this problem. If you have followed this one, it is okay. You don't have to change your solution. But the correct way to observe the difference is following the above procedure;
+
+		Now try simulating Q-learning directly on \texttt{newThresholdMDP} instead. What is your expected reward under the new Q-learning policy? Provide some explanation for how the rewards compare, and why they are different.) 
+	\end{itemize}
+	
+	See code. Following the original value iteration optimum policy, the expected reward is low when the MDP is altered. A similar result is seen with Q-learning if no exploration is allowed when run on the new MDP. If exploration is allowed, Q-learning performs superiorly and returns an expected reward that is close to that when following the optimum policy of the new MDP.
 		
 \end{enumerate}
 
