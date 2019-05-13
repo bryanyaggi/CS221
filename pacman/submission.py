@@ -142,7 +142,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Directions.STOP:
         The stop direction, which is always legal
 
-      gameState.generateSuccessor(agentIndex, action):
+      gameState.generateSuccessor(iagentIndex, action):
         Returns the successor game state after an agent takes an action
 
       gameState.getNumAgents():
@@ -163,7 +163,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_CODE (our solution is 26 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    def recurse(state, agentIndex, depth):
+        if state.isWin() or state.isLose(): # game over
+            value = state.getScore()
+            action = Directions.STOP
+            return (value, action)
+        if depth == 0:
+            value = self.evaluationFunction(state)
+            action = random.choice(state.getLegalActions(agentIndex))
+            return (value, action)
+        nextAgentIndex = agentIndex
+        nextDepth = depth
+        if agentIndex == 0: # pac-man agent
+            if state.getNumAgents() > 0:
+                nextAgentIndex = agentIndex + 1
+            else:
+                nextDepth = depth - 1
+            options = [(recurse(state.generateSuccessor(agentIndex, action), nextAgentIndex, nextDepth)[0], action)
+                    for action in state.getLegalActions(agentIndex)]
+            value = max(options)[0]
+            actions = [option[1] for option in options if option[0] == value]
+            action = random.choice(actions)
+            return (value, action)
+        # ghost agents
+        if agentIndex == state.getNumAgents() - 1:
+            nextAgentIndex = 0
+            nextDepth = depth - 1
+        else:
+            nextAgentIndex = agentIndex + 1
+        options = [(recurse(state.generateSuccessor(agentIndex, action), nextAgentIndex, nextDepth)[0], action)
+                for action in state.getLegalActions(agentIndex)]
+        value = min(options)[0]
+        actions = [option[1] for option in options if option[0] == value]
+        action = random.choice(actions)
+        return (value, action)
+
+    value, action = recurse(gameState, agentIndex=0, depth=self.depth)
+    #print(value)
+    return action
     # END_YOUR_CODE
 
 ######################################################################################
