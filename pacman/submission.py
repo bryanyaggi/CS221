@@ -175,7 +175,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         nextAgentIndex = agentIndex
         nextDepth = depth
         if agentIndex == 0: # pac-man agent
-            if state.getNumAgents() > 0:
+            if state.getNumAgents() > 1:
                 nextAgentIndex = agentIndex + 1
             else:
                 nextDepth = depth - 1
@@ -217,7 +217,54 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_CODE (our solution is 49 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    def recurse(state, agentIndex, depth, alpha=float('-inf'), beta=float('inf')):
+        if state.isWin() or state.isLose(): # game over
+            value = state.getScore()
+            action = Directions.STOP
+            return (value, action)
+        if depth == 0:
+            value = self.evaluationFunction(state)
+            action = random.choice(state.getLegalActions(agentIndex))
+            return (value, action)
+        nextAgentIndex = agentIndex
+        nextDepth = depth
+        if agentIndex == 0: # pac-man agent
+            if state.getNumAgents() > 1:
+                nextAgentIndex = agentIndex + 1
+            else:
+                nextDepth = depth - 1
+            value = float('-inf')
+            action = Directions.STOP
+            result = (value, action)
+            actions = state.getLegalActions(agentIndex)
+            random.shuffle(actions)
+            for action in actions:
+                result = max(result, (recurse(state.generateSuccessor(agentIndex, action), nextAgentIndex, nextDepth, alpha, beta)[0], action))
+                alpha = max(alpha, result[0])
+                if alpha >= beta:
+                    break
+            return result
+        # ghost agents
+        if agentIndex == state.getNumAgents() - 1:
+            nextAgentIndex = 0
+            nextDepth = depth - 1
+        else:
+            nextAgentIndex = agentIndex + 1
+        value = float('inf')
+        action = Directions.STOP
+        result = (value, action)
+        actions = state.getLegalActions(agentIndex)
+        random.shuffle(actions)
+        for action in actions:
+            result = min(result, (recurse(state.generateSuccessor(agentIndex, action), nextAgentIndex, nextDepth, alpha, beta)[0], action))
+            beta = min(beta, result[0])
+            if alpha >= beta:
+                break
+        return result
+
+    value, action = recurse(gameState, agentIndex=0, depth=self.depth)
+    #print(value)
+    return action
     # END_YOUR_CODE
 
 ######################################################################################
