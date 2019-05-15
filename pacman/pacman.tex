@@ -37,82 +37,36 @@ Name: & Bryan Yaggi
   \item coding
 
 \end{enumerate}
-\iffalse
-\section*{\normalsize Problem 2: Transforming MDPs}
 
-Let's implement value iteration to compute the optimal policy on an arbitrary MDP. Later, we'll create the specific MDP for Blackjack. 
-\smallskip
-
-\begin{enumerate}[label=(\alph*)]
-
-  \item If we add noise to the transitions of an MDP, does the optimal value always get worse? Specifically, consider an MDP with reward function $Reward(s,a,s')$, states $States$, and transition function $T(s,a,s′)$. Let's define a new MDP which is identical to the original, except that on each action, with probability $\frac{1}{2}$, we randomly jump to one of the states that we could have reached before with positive probability. Formally, this modified transition function is:
-  
-  $$T'(s,a,s') = \frac{1}{2} T(s,a,s') + \frac{1}{2} \frac{1}{| \{ s'':T(s,a,s'')>0 \} |}$$
-  
-  Let $V_1$ be the optimal value function for the original MDP, and $V_2$ the optimal value function for the modified MDP. Is it always the case that $V_1(s_{start}) \geq V_2(s_{start})$? If so, prove it on the written portion and put return None for each of the code blocks. Otherwise, construct a counter example by filling out \texttt{CounterexampleMDP} in \texttt{submission.py}.
-  
-  This is not always the case. Here is a counterexample.
-  
-  \begin{center}
-	  \begin{tikzpicture}
-			\begin{scope}[every node/.style={circle,thick,draw}]
-	    		\node (-1) at (3,0) {$-1$};
-	    		\node (0) at (6,0) {$0$};
-	    		\node (1) at (9,0) {$1$};
-			\end{scope}
-			\begin{scope}[every node/.style={circle,thick,draw=red}]
-	    		\node (A) at (6,3) {$0,+1$};
-	    		\node (B) at (6,-3) {$0,-1$};
-			\end{scope}
-	
-			\begin{scope}[every node/.style={fill=white,circle},every edge/.style={draw=blue,thick}]
-				\path [->] (0) edge node {$+1$} (A);	    		
-	    		\path [->] (0) edge node {$-1$} (B);
-			\end{scope}
-			\begin{scope}[every node/.style={fill=white,circle},every edge/.style={draw=black,thick}]
-				\path [->] (A) edge node {$.2,100$} (1);	    		
-	    		\path [->] (A) edge node {$.8,0$} (-1);
-	    		\path [->] (B) edge node {$.1,100$} (1);
-	    		\path [->] (B) edge node {$.9,0$} (-1);
-			\end{scope}
-		\end{tikzpicture}
-	\end{center}
-	
-	\begin{tabular}{c | c c c}
-		$s$ & $-1$ & $0$ & $1$\\
-  		$V_1$ & $0$ & $20$ & $0$\\
-  		$V_2$ & $0$ & $35$ & $0$\\
-  	\end{tabular}
-  
-  \item Suppose we have an acyclic MDP for which we want to find the optimal value at each node. We could run value iteration, which would require multiple iterations -- but it would be nice to be more efficient for MDPs with this acyclic property. Briefly explain an algorithm that will allow us to compute $V_{opt}$ for each node with only a single pass over all the $(s,a,s')$ triples.
-  
-  The alogrithm would involve calculating $V_{opt}$ for the end states and working backwards to the start state.
-  
-  \item Suppose we have an MDP with states $States$ and a discount factor $\gamma < 1$, but we have an MDP solver that can only solve MDPs with discount factor of 1. How can we leverage the MDP solver to solve the original MDP?
-  
-  Let us define a new MDP with states $States'= States \cup \{o\}$, where $o$ is a new state. Let's use the same actions $Actions'(s) = Actions(s)$, but we need to keep the discount $\gamma' = 1$. Your job is to define new transition probabilities $T'(s,a,s')$ and rewards $Reward'(s,a,s')$ in terms of the old MDP such that the optimal values $V_{opt}(s)$ for all $s \in States$ are equal under the original MDP and the new MDP.
-  
-  Hint: If you're not sure how to approach this problem, go back to the notes from the first MDP lecture and read closely the slides on convergence, toward the end of the deck.
-  
-  From the notes: ``We can reinterpret the discount $\gamma < 1$ condition as introducing a new transition from each state to a special end state with probability $(1 - \gamma)$, multiplying all the other transition probabilities by $\gamma$, and setting the discount to 1. The interpretation is that with probability $1 - \gamma$, the MDP terminates at any state."
-  
-  \begin{align*}
-  		T'(s,a,s') &= \gamma T(s,a,s')\\
-  		Rewards'(s,a,s') &= Rewards(s,a,s')
-  \end{align*}
-
-\end{enumerate}
-
-\section*{\normalsize Problem 3: Peeking Blackjack}
+\section*{\normalsize Problem 2: Alpha-Beta Pruning}
 
 \begin{enumerate}[label=(\alph*)]
 
   \item coding
+
+\end{enumerate}
+
+\section*{\normalsize Problem 3: Expectimax}
+
+\begin{enumerate}[label=(\alph*)]
+
+  \item Random ghosts are of course not optimal minimax agents, so modeling them with minimax search is not optimal. Instead, write down the recurrence for $V_{exptmax}(s,d)$, which is the maximum expected utility against ghosts that each follow the random policy which chooses a legal move uniformly at random. Your recurrence should resemble that of Problem 1a (meaning you should write it in terms of the same functions that were specified in 1a).
+  
+  \begin{align*}
+  V_{exptmax}(s,d) &= \begin{cases}
+  \texttt{Utility(s)}, &\texttt{IsEnd(s)}\\
+  \texttt{Eval(s)}, &d = 0\\
+  max_{a \in \texttt{Actions(s)}}V_{exptmax}(\texttt{Succ(s,a)},d), &\texttt{Player(s)} = a_0\\
+  \sum_{a \in \texttt{Actions(s)}}\pi_{opp}(s,a)V_{exptmax}(\texttt{Succ(s,a)},d), &\texttt{Player(s)} = a_1, \dots, a_{n-1}\\
+  \sum_{a \in \texttt{Actions(s)}}\pi_{opp}(s,a)V_{exptmax}(\texttt{Succ(s,a)},d-1), &\texttt{Player(s)} = a_n\\
+  \end{cases}\\ 
+  \pi_{opp} &= \frac{1}{|\texttt{Actions(s)}|}
+  \end{align*}
   
   \item coding
 		
 \end{enumerate}
-
+\iffalse
 \section*{\normalsize Problem 4: Learning to Play Blackjack}
 
 So far, we've seen how MDP algorithms can take an MDP which describes the full dynamics of the game and return an optimal policy. But suppose you go into a casino, and no one tells you the rewards nor the transitions. We will see how reinforcement learning can allow you to play the game and learn its rules and strategy at the same time!

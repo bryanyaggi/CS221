@@ -239,7 +239,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             actions = state.getLegalActions(agentIndex)
             random.shuffle(actions)
             for action in actions:
-                result = max(result, (recurse(state.generateSuccessor(agentIndex, action), nextAgentIndex, nextDepth, alpha, beta)[0], action))
+                result = max(result, (recurse(state.generateSuccessor(agentIndex, action),
+                    nextAgentIndex, nextDepth, alpha, beta)[0], action))
                 alpha = max(alpha, result[0])
                 if alpha >= beta:
                     break
@@ -256,7 +257,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         actions = state.getLegalActions(agentIndex)
         random.shuffle(actions)
         for action in actions:
-            result = min(result, (recurse(state.generateSuccessor(agentIndex, action), nextAgentIndex, nextDepth, alpha, beta)[0], action))
+            result = min(result, (recurse(state.generateSuccessor(agentIndex, action),
+                nextAgentIndex, nextDepth, alpha, beta)[0], action))
             beta = min(beta, result[0])
             if alpha >= beta:
                 break
@@ -284,7 +286,43 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_CODE (our solution is 25 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    def recurse(state, agentIndex, depth):
+        if state.isWin() or state.isLose(): # game over
+            value = state.getScore()
+            action = Directions.STOP
+            return (value, action)
+        if depth == 0:
+            value = self.evaluationFunction(state)
+            action = random.choice(state.getLegalActions(agentIndex))
+            return (value, action)
+        nextAgentIndex = agentIndex
+        nextDepth = depth
+        if agentIndex == 0: # pac-man agent
+            if state.getNumAgents() > 1:
+                nextAgentIndex = agentIndex + 1
+            else:
+                nextDepth = depth - 1
+            options = [(recurse(state.generateSuccessor(agentIndex, action), nextAgentIndex, nextDepth)[0], action)
+                    for action in state.getLegalActions(agentIndex)]
+            value = max(options)[0]
+            actions = [option[1] for option in options if option[0] == value]
+            action = random.choice(actions)
+            return (value, action)
+        # ghost agents
+        if agentIndex == state.getNumAgents() - 1:
+            nextAgentIndex = 0
+            nextDepth = depth - 1
+        else:
+            nextAgentIndex = agentIndex + 1
+        values = [recurse(state.generateSuccessor(agentIndex, action), nextAgentIndex, nextDepth)[0]
+                for action in state.getLegalActions(agentIndex)]
+        value = 1. * sum(values) / len(values)
+        action = Directions.STOP
+        return (value, action)
+
+    value, action = recurse(gameState, agentIndex=0, depth=self.depth)
+    #print(value)
+    return action
     # END_YOUR_CODE
 
 ######################################################################################
