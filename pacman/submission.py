@@ -329,15 +329,35 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 # Problem 4a (extra credit): creating a better evaluation function
 
 def betterEvaluationFunction(currentGameState):
-  """
-    Your extreme, unstoppable evaluation function (problem 4).
+    """
+      Your extreme, unstoppable evaluation function (problem 4).
 
-    DESCRIPTION: <write something here so we know what you did>
-  """
+      DESCRIPTION: <write something here so we know what you did>
+    """
 
-  # BEGIN_YOUR_CODE (our solution is 15 lines of code, but don't worry if you deviate from this)
-  raise Exception("Not implemented yet")
-  # END_YOUR_CODE
+    # BEGIN_YOUR_CODE (our solution is 15 lines of code, but don't worry if you deviate from this)
+    def getDistanceToNearestFood(pacmanPos):
+        nearestFoodDist = float('inf')
+        width = currentGameState.data.layout.width
+        height = currentGameState.data.layout.height
+        for x in range(width):
+            for y in range(height):
+                if currentGameState.hasFood(x, y):
+                    foodDist = manhattanDistance(pacmanPos, (x,y))
+                    if foodDist < nearestFoodDist:
+                        nearestFoodDist = foodDist
+        return nearestFoodDist
+
+    def getNumCapsules():
+        return len(currentGameState.getCapsules())
+
+    score = currentGameState.getScore()
+    pacmanPos = currentGameState.getPacmanPosition()
+    nearestFoodDist = getDistanceToNearestFood(pacmanPos)
+    numCapsules = getNumCapsules()
+
+    return score + 10./nearestFoodDist + 100./(numCapsules + 1)
+    # END_YOUR_CODE
 
 # Abbreviation
 better = betterEvaluationFunction
