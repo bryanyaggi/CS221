@@ -380,17 +380,15 @@ def betterEvaluationFunction(currentGameState):
     numCapsules = getNumCapsules()
     numScaredGhosts, scaredGhostPos = getScaredGhosts()
 
-    penalty = 0
+    extraTerm = 0
     if numScaredGhosts > 0:
         nearestObjectiveDist = getDistanceToNearestScaredGhost(pacmanPos, scaredGhostPos)
-        for capsulePos in currentGameState.getCapsules():
-            if pacmanPos == capsulePos:
-                penalty = -100
+        extraTerm = 50 * numCapsules # prevent eating capsules
     elif numCapsules > 0:
         nearestObjectiveDist = getDistanceToNearestCapsule(pacmanPos)
     else:
         nearestObjectiveDist = getDistanceToNearestFood(pacmanPos)
-    return score + 10./nearestObjectiveDist + 130./(numCapsules + 1) + penalty
+    return score + 10./nearestObjectiveDist + 130./(numCapsules + 1) + extraTerm
     # END_YOUR_CODE
 
 # Abbreviation
