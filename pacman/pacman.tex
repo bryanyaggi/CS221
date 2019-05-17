@@ -76,6 +76,8 @@ So far, we've seen how MDP algorithms can take an MDP which describes the full d
   \item coding
   
   \item Clearly describe your evaluation function. What is the high-level motivation? Also talk about what else you tried, what worked and what didn't. Please write your thoughts in \texttt{pacman.pdf} (not in code comments).
+  
+  The overall strategy is as follows. If there are scared ghosts, chase the nearest scared ghost. If there are no scared ghosts but there are remaining capsules, chase the nearest capsule. If there are no scared ghosts and all capsules are gone, chase the nearest food. Features included the score and reciprocal of the distance to nearest objective. Distance is calculated using the \texttt{manhattanDistance} function in \texttt{util.py}. A penalty is added if a capsule is collected while a scared ghost is present.
 		
 \end{enumerate}
 

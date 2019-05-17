@@ -351,12 +351,46 @@ def betterEvaluationFunction(currentGameState):
     def getNumCapsules():
         return len(currentGameState.getCapsules())
 
+    def getDistanceToNearestCapsule(pacmanPos):
+        nearestCapsuleDist = float('inf')
+        for capsulePos in currentGameState.getCapsules():
+            capsuleDist = manhattanDistance(pacmanPos, capsulePos)
+            if capsuleDist < nearestCapsuleDist:
+                nearestCapsuleDist = capsuleDist
+        return nearestCapsuleDist
+
+    def getScaredGhosts():
+        scaredGhostPos = []
+        for agentIndex in range(1, currentGameState.getNumAgents()):
+            if currentGameState.getGhostState(agentIndex).scaredTimer > 0:
+                scaredGhostPos.append(currentGameState.getGhostPosition(agentIndex))
+        numScaredGhosts = len(scaredGhostPos)
+        return (numScaredGhosts, scaredGhostPos)
+
+    def getDistanceToNearestScaredGhost(pacmanPos, scaredGhostPos):
+        nearestScaredGhostDist = float('inf')
+        for ghostPos in scaredGhostPos:
+            scaredGhostDist = manhattanDistance(pacmanPos, ghostPos)
+            if scaredGhostDist < nearestScaredGhostDist:
+                nearestScaredGhostDist = scaredGhostDist
+        return nearestScaredGhostDist
+
     score = currentGameState.getScore()
     pacmanPos = currentGameState.getPacmanPosition()
-    nearestFoodDist = getDistanceToNearestFood(pacmanPos)
     numCapsules = getNumCapsules()
+    numScaredGhosts, scaredGhostPos = getScaredGhosts()
 
-    return score + 10./nearestFoodDist + 100./(numCapsules + 1)
+    penalty = 0
+    if numScaredGhosts > 0:
+        nearestObjectiveDist = getDistanceToNearestScaredGhost(pacmanPos, scaredGhostPos)
+        for capsulePos in currentGameState.getCapsules():
+            if pacmanPos == capsulePos:
+                penalty = -100
+    elif numCapsules > 0:
+        nearestObjectiveDist = getDistanceToNearestCapsule(pacmanPos)
+    else:
+        nearestObjectiveDist = getDistanceToNearestFood(pacmanPos)
+    return score + 10./nearestObjectiveDist + 130./(numCapsules + 1) + penalty
     # END_YOUR_CODE
 
 # Abbreviation
