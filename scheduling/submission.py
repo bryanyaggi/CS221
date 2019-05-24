@@ -244,7 +244,16 @@ class BacktrackingSearch():
             #       assignment, a variable, and a proposed value to this variable
             # Hint: for ties, choose the variable with lowest index in self.csp.variables
             # BEGIN_YOUR_CODE (our solution is 7 lines of code, but don't worry if you deviate from this)
-            raise Exception("Not implemented yet")
+            msv = (self.csp.variables[0], float('inf'))
+            for var in self.csp.variables:
+                if var not in assignment:
+                    numConsistentAssignments = 0
+                    for val in self.domains[var]:
+                        if self.get_delta_weight(assignment, var, val) > 0:
+                            numConsistentAssignments += 1
+                    if numConsistentAssignments < msv[1]:
+                        msv = (var, numConsistentAssignments)
+            return msv[0]
             # END_YOUR_CODE
 
     def arc_consistency_check(self, var):
@@ -271,7 +280,29 @@ class BacktrackingSearch():
 
 
         # BEGIN_YOUR_CODE (our solution is 20 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        varsToProcess = collections.deque()
+        varsToProcess.append(var)
+        while len(varsToProcess) > 0:
+            baseVar = varsToProcess.popleft()
+            for neighborVar in self.csp.get_neighbor_vars(baseVar):
+                originalDomain = list(self.domains[neighborVar])
+                for neighborVal in originalDomain:
+                    # check unary factors
+                    if self.csp.unaryFactors[neighborVar] != None:
+                        if self.csp.unaryFactors[neighborVar][neighborVal] == 0:
+                            self.domains[neighborVar].remove(neighborVal)
+                            if neighborVar not in varsToProcess:
+                                varsToProcess.append(neighborVar)
+                                continue
+                    # check binary factors
+                    consistentAssignmentFound = False
+                    for baseVal in self.domains[baseVar]:
+                        if self.csp.binaryFactors[neighborVar][baseVar][neighborVal][baseVal] > 0:
+                            consistentAssignmentFound = True
+                    if not(consistentAssignmentFound):
+                        self.domains[neighborVar].remove(neighborVal)
+                        if neighborVar not in varsToProcess:
+                            varsToProcess.append(neighborVar)
         # END_YOUR_CODE
 
 
