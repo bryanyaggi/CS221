@@ -330,7 +330,31 @@ def get_sum_variable(csp, name, variables, maxSum):
         iff the assignment of |variables| sums to |n|.
     """
     # BEGIN_YOUR_CODE (our solution is 18 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    result = ('sum', name, 'aggregated')
+    csp.add_variable(result, [n for n in range(0, maxSum+1)])
+
+    B_prev = None
+    nVars = len(variables)
+    for i in range(nVars):
+        X_i = variables[i]
+        B_i = ('sum', name, i)
+        domain = []
+        for x in range(0, maxSum+1):
+            for y in range(x, maxSum+1):
+                domain.append((x, y))
+        csp.add_variable(B_i, domain)
+        if i == 0:
+            csp.add_unary_factor(B_i, lambda x : x[0] == 0)
+        else:
+            csp.add_binary_factor(B_i, B_prev, lambda x, y : x[0] == y[1])
+        csp.add_binary_factor(B_i, X_i, lambda x, y : x[1] == x[0] + y)
+        B_prev = B_i
+    if nVars == 0:
+        csp.add_unary_factor(result, lambda x : x == 0)
+    else:
+        B_last = ('sum', name, nVars-1)
+        csp.add_binary_factor(result, B_last, lambda x, y : x == y[1])
+    return result
     # END_YOUR_CODE
 
 # importing get_or_variable helper function from util
