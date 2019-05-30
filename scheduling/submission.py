@@ -293,7 +293,7 @@ class BacktrackingSearch():
                             self.domains[neighborVar].remove(neighborVal)
                             if neighborVar not in varsToProcess:
                                 varsToProcess.append(neighborVar)
-                                continue
+                            continue
                     # check binary factors
                     consistentAssignmentFound = False
                     for baseVal in self.domains[baseVar]:
@@ -528,7 +528,19 @@ class SchedulingCSPConstructor():
         # Hint 5: remember that range(a, b) includes a but excludes b
 
         # BEGIN_YOUR_CODE (our solution is 16 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        for quarter in self.profile.quarters:
+            variables = []
+            for request in self.profile.requests:
+                for cid in request.cids:
+                    minUnits = self.bulletin.courses[cid].minUnits
+                    maxUnits = self.bulletin.courses[cid].maxUnits
+                    csp.add_variable((cid, quarter),
+                            [units for units in range(minUnits, maxUnits+1)] + [0])
+                    variables.append((cid, quarter))
+                    csp.add_binary_factor((request, quarter), (cid, quarter),
+                            lambda c, n : n > 0 if c == cid else n == 0)
+            quarterUnits = get_sum_variable(csp, quarter, variables, self.profile.maxUnits)
+            csp.add_unary_factor(quarterUnits, lambda n : n >= self.profile.minUnits)
         # END_YOUR_CODE
 
     def add_all_additional_constraints(self, csp):

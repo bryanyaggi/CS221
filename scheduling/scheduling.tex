@@ -207,28 +207,56 @@ The second type of n-ary factors are constraints on the sum over $n$ variables. 
   \item coding
 
 \end{enumerate}
-\iffalse
-\section*{\normalsize Problem 3: Expectimax}
+
+\section*{\normalsize Problem 3: Course Scheduling}
+
+In this problem, we will apply your weighted CSP solver to the problem of course scheduling. We have scraped a subset of courses that are offered from Stanford's Bulletin. For each course in this dataset, we have information on which quarters it is offered, the prerequisites (which may not be fully accurate due to ambiguity in the listing), and the range of units allowed. You can take a look at all the courses in \texttt{courses.json}. Please refer to \texttt{util.Course} and \texttt{util.CourseBulletin} for more information. 
 
 \begin{enumerate}[label=(\alph*)]
 
-  \item Random ghosts are of course not optimal minimax agents, so modeling them with minimax search is not optimal. Instead, write down the recurrence for $V_{exptmax}(s,d)$, which is the maximum expected utility against ghosts that each follow the random policy which chooses a legal move uniformly at random. Your recurrence should resemble that of Problem 1a (meaning you should write it in terms of the same functions that were specified in 1a).
-  
-  \begin{align*}
-  V_{exptmax}(s,d) &= \begin{cases}
-  \texttt{Utility(s)}, &\texttt{IsEnd(s)}\\
-  \texttt{Eval(s)}, &d = 0\\
-  max_{a \in \texttt{Actions(s)}}V_{exptmax}(\texttt{Succ(s,a)},d), &\texttt{Player(s)} = a_0\\
-  \sum_{a \in \texttt{Actions(s)}}\pi_{opp}(s,a)V_{exptmax}(\texttt{Succ(s,a)},d), &\texttt{Player(s)} = a_1, \dots, a_{n-1}\\
-  \sum_{a \in \texttt{Actions(s)}}\pi_{opp}(s,a)V_{exptmax}(\texttt{Succ(s,a)},d-1), &\texttt{Player(s)} = a_n\\
-  \end{cases}\\ 
-  \pi_{opp} &= \frac{1}{|\texttt{Actions(s)}|}
-  \end{align*}
+  \item coding
   
   \item coding
-		
-\end{enumerate}
+  
+  \item Now try to use the course scheduler for the winter and spring (and next year if applicable). Create your own \texttt{profile.txt} and then run the course scheduler:
 
+	\texttt{python run\_p3.py profile.txt}
+
+	You might want to turn on the appropriate heuristic flags to speed up the computation. Does it produce a reasonable course schedule? Please include your \texttt{profile.txt} and the best schedule in your writeup; we're curious how it worked out for you!
+
+	\texttt{profile.txt}\\
+	\texttt{-----------}\\
+	\texttt{minUnits 3}\\
+	\texttt{maxUnits 5}\\
+	\texttt{taken STATS116}\\
+	\texttt{taken CS106A}\\
+	\texttt{taken CS106B}\\
+	\texttt{taken CS103}\\
+	\texttt{taken CS107}\\
+	\texttt{taken CS109}\\
+	\texttt{taken CS110}\\
+	\texttt{taken CS221}\\
+	\texttt{request CS161 weight 2}\\
+	\texttt{request CS231N weight 2}\\
+	\texttt{request CS229}\\
+	\texttt{request CS230}\\
+	\texttt{request CS234}\\
+	\texttt{-----------}
+
+	Resulting best schedule:\\
+		\begin{tabular}{l l l}
+			Quarter & Units & Course\\
+			\hline
+	  		Sum2019 & 5 & CS161\\
+	  		Aut2019 & 4 & CS229\\
+	  		Win2020 & 3 & CS234\\
+	  		Spr2020 & 4 & CS231N\\
+	  	\end{tabular}
+	  	
+	  	Note: I added CS230, CS231N, and CS234 to \texttt{courses.json}.
+
+\end{enumerate}
+\iffalse
 \section*{\normalsize Problem 4: Evaluation Function (Extra Credit)}
 
 So far, we've seen how MDP algorithms can take an MDP which describes the full dynamics of the game and return an optimal policy. But suppose you go into a casino, and no one tells you the rewards nor the transitions. We will see how reinforcement learning can allow you to play the game and learn its rules and strategy at the same time!
