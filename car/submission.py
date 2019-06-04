@@ -46,7 +46,15 @@ class ExactInference(object):
 
     def observe(self, agentX, agentY, observedDist):
         # BEGIN_YOUR_CODE (our solution is 6 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        for row in range(self.belief.getNumRows()):
+            tileY = util.rowToY(row)
+            sqDistY = (tileY - agentY) ** 2
+            for col in range(self.belief.getNumCols()):
+                tileX = util.colToX(col)
+                dist = math.sqrt((tileX - agentX) ** 2 + sqDistY)
+                self.belief.setProb(row, col, self.belief.getProb(row, col) *
+                        util.pdf(dist, Const.SONAR_STD, observedDist))
+        self.belief.normalize()
         # END_YOUR_CODE
 
     ##################################################################################
