@@ -188,7 +188,20 @@ class ParticleFilter(object):
     ##################################################################################
     def observe(self, agentX, agentY, observedDist):
         # BEGIN_YOUR_CODE (our solution is 23 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        # Reweight based on observation
+        for tile in self.particles:
+            tileRow = tile[0]
+            tileCol = tile[1]
+            tileY = util.rowToY(tileRow)
+            tileX = util.colToX(tileCol)
+            dist = math.sqrt((tileX - agentX) ** 2 + (tileY - agentY) ** 2)
+            self.particles[tile] = self.particles[tile] * util.pdf(dist, Const.SONAR_STD, observedDist)
+        # Resample particles
+        newParticles = collections.defaultdict(int)
+        for i in range(self.NUM_PARTICLES):
+            tile = util.weightedRandomChoice(self.particles)
+            newParticles[tile] += 1
+        self.particles = newParticles
         # END_YOUR_CODE
 
         self.updateBelief()
@@ -218,7 +231,12 @@ class ParticleFilter(object):
     ##################################################################################
     def elapseTime(self):
         # BEGIN_YOUR_CODE (our solution is 6 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        newParticles = collections.defaultdict(int)
+        for tile in self.particles:
+            for i in range(self.particles[tile]):
+                newTile = util.weightedRandomChoice(self.transProbDict[tile])
+                newParticles[newTile] += 1
+        self.particles = newParticles
         # END_YOUR_CODE
 
     # Function: Get Belief
