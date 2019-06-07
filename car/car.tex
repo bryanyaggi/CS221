@@ -183,190 +183,84 @@ Important: For the following computations, try to follow the general strategy de
 	\end{enumerate}
 
 \end{enumerate}
-\iffalse
-\section*{\normalsize Problem 1: CSP Solving}
+
+\section*{\normalsize Problem 2: Emission Probabilities}
 
 \begin{enumerate}[label=(\alph*)]
 
-  \item coding
-  
-  \item coding
-  
   \item coding
 
 \end{enumerate}
 
-\section*{\normalsize Problem 2: Handling N-ary Factors}
-
-So far, our CSP solver only handles unary and binary factors, but for course scheduling (and really any non-trivial application), we would like to define factors that involve more than two variables. It would be nice if we could have a general way of reducing n-ary constraint to unary and binary constraints. In this problem, we will do exactly that for two types of n-ary constraints.
-\smallskip
-
-Suppose we have boolean variables $X_1, X_2, X_3$, where $X_i$ represents whether the $i$-th course is taken. Suppose we want to enforce the constraint that $Y = X_1 \vee X_2 \vee X_3$, that is, $Y$ is a boolean representing whether at least one course has been taken. For reference, in \texttt{util.py}, the function \texttt{get\_or\_variable()} does such a reduction. It takes in a list of variables and a target value, and returns a boolean variable with domain $[True, False]$ whose value is constrained to the condition of having at least one of the variables assigned to the target value. For example, we would call \texttt{get\_or\_variable()} with arguments $(X_1, X_2, X_3, True)$, which would return a new (auxiliary) variable $X_4$, and then add another constraint $[X_4 = True]$.
-\smallskip
-
-The second type of n-ary factors are constraints on the sum over $n$ variables. You are going to implement reduction of this type but let's first look at a simpler problem to get started:
+\section*{\normalsize Problem 3: Transition Probabilities}
 
 \begin{enumerate}[label=(\alph*)]
 
-  \item Suppose we have a CSP with three variables $X_1, X_2, X_3$ with the same domain $\{ 0, 1, 2 \}$ and a ternary constraint $[X_1 + X_2 + X_3 \leq K]$. How can we reduce this CSP to one with only unary and/or binary constraints? Explain what auxiliary variables we need to introduce, what their domains are, what unary/binary factors you'll add, and why your scheme works. Add a graph if you think that'll better explain your scheme.
+  \item coding
+
+\end{enumerate}
+
+\section*{\normalsize Problem 4: Particle Filtering}
+
+\begin{enumerate}[label=(\alph*)]
+
+  \item coding
   
-  Define a new variables $A_i, B_i$.
+  \item coding  
+
+\end{enumerate}
+
+\section*{\normalsize Problem 5: Which Car is It?}
+
+So far, we have assumed that we have a distinct noisy distance reading for each car, but in reality, our microphone would just pick up an undistinguished set of these signals, and we wouldn't know which distance reading corresponds to which car. First, let's extend the notation from before: let $C_{ti} \in \mathbb{R}^2$ be the location of the $i$-th car at the time step $t$, for $i = 1, \dots, K$ and $t = 1, \dots, T$. Recall that all the cars move independently according to the transition dynamics as before.
+\smallskip 
+
+Let $D_{ti} \in \mathbb{R}$ be the noisy distance measurement of the $i$-th car, which is now not observed. Instead, we observe the set of distances $D_t = \{D_{t1}, \dots, D_{tK}\}$ (assume that all distances are all distinct). Alternatively, you can think of $E_t = (E_{t1}, \dots, E_{tK})$ as a list which is a uniformly random permutation of the noisy distances $(D_{t1}, \dots, D_{tK})$. For example, suppose $K = 2$ and $T = 2$. Before, we might have gotten distance readings of 1 and 2 for the first car and 3 and 4 for the second car. Now, our sensor readings would be permutations of $\{1, 3\}$ and $\{2 ,4\}$. Thus, even if we knew the second car was distance 3 away at time $t = 1$, we wouldn't know if it moved farther (4 away) or closer (2 away) at time $t = 2$.
+
+\begin{enumerate}[label=(\alph*)]
+
+  \item Suppose we have $K = 2$ cars and one time step $T = 1$. Write an expression for the conditional distribution $\mathbb{P}(C_{11}, C_{12} \mid E_1 = e_1)$ as a function of the PDF of a Gaussian $p_{\mathcal{N}}(\nu; \mu, \sigma^2)$ and the prior probability $p(c_{11})$ and $p(c_{12})$ over car locations. Your final answer should not contain variables $d_{11}$, $d_{12}$.
+  
+  Remember that $p_{\mathcal{N}}(\nu; \mu, \sigma^2)$ is the probability of a random variable, $\nu$, in a Gaussian distribution with mean $\mu$ and standard deviation $\sigma^2$. 
+  
+  \begin{center}
+	  \begin{tikzpicture}
+			\begin{scope}[every node/.style={circle,thick,draw}]
+	    		\node (C11) at (0,0) {$C_{11}$};
+	    		\node (C12) at (3,0) {$C_{12}$};
+	    		\node (E1) at (1.5,-3) {$E_1$};
+			\end{scope}
+			\begin{scope}[every node/.style={rectangle,thick,draw}]
+				\node (t0) at (0,1.5)	 {$p(c_{11})$};  		
+	    		\node (t1) at (3,1.5) {$p(c_{12})$};
+	    		\node (t2) at (1.5,-1.5) {$p(e_1 \mid c_{11}, c_{12})$};
+			\end{scope}
+	
+			\begin{scope}[every edge/.style={draw=black,thick}]
+				\path [-] (t0) edge node {} (C11);	    		
+	    		\path [-] (t1) edge node {} (C12);
+	    		\path [-] (C11) edge node {} (t2);
+	    		\path [-] (C12) edge node {} (t2);
+	    		\path [-] (t2) edge node {} (E1);
+			\end{scope}
+		\end{tikzpicture}
+	\end{center}
+	
 	\begin{align*}
-		A_i &= A_{i-1} + X_i, A_0 = 0\\
-		B_i &= (A_{i-1}, A_i)\\
-  		Domain(B_i) &= \{ (x,y) : 0 \leq x \leq 6, 0 \leq y \leq 6, x \in \mathbb{Z}, y \in \mathbb{Z} \}
-	\end{align*}	  
+	\mathbb{P}(C_{11}, C_{12} \mid E_1 = e_1) &\propto p(c_{11}) p(c_{12}) (p(e_1 = \{ e_{11}, e_{12} \} \mid c_{11}, c_{12}) + p(e_1 = \{ e_{12}, e_{11} \} \mid c_{11}, c_{12}))\\
+	p(e_1 = \{ e_{11}, e_{12} \} \mid c_{11}, c_{12}) &\propto p_{\mathcal{N}}(e_{11}; \lVert a_1 - c_{11} \rVert, \sigma^2) p_{\mathcal{N}}(e_{12}; \lVert a_1 - c_{12} \rVert, \sigma^2)\\
+	p(e_1 = \{ e_{12}, e_{11} \} \mid c_{11}, c_{12}) &\propto p_{\mathcal{N}}(e_{12}; \lVert a_1 - c_{11} \rVert, \sigma^2) p_{\mathcal{N}}(e_{11}; \lVert a_1 - c_{12} \rVert, \sigma^2)\\
+	\mathbb{P}(C_{11}, C_{12} \mid E_1 = e_1) &\propto p(c_{11}) p(c_{12}) (p_{\mathcal{N}}(e_{11}; \lVert a_1 - c_{11} \rVert, \sigma^2) p_{\mathcal{N}}(e_{12}; \lVert a_1 - c_{12} \rVert, \sigma^2)\\
+	&+ p_{\mathcal{N}}(e_{12}; \lVert a_1 - c_{11} \rVert, \sigma^2) p_{\mathcal{N}}(e_{11}; \lVert a_1 - c_{12} \rVert, \sigma^2))
+	\end{align*}
+  \iffalse
+  \item Assuming the prior $p(c_{1i})$ is the same for all $i$, show that the number of assignments for all $K$ cars $(c_{11}, \dots, c_{1K})$ that obtain the maximum value of $\mathbb{P}(C_{11} = c_{11}, \dots, C_{1K} = c_{1K} \mid E_1 = e_1)$ is at least $K!$.
   
+  \item For general $K$, what is the treewidth corresponding to the posterior distribution over all $K$ car locations at all $T$ time steps conditioned on all the sensor readings:
+  $$\mathbb{P}(C_{11} = c_{11}, \dots, C_{1K} = c_{1K} , \dots, C_{T1} = c_{T1}, \dots, C_{TK} = c_{TK} \mid E_1 = e_1, \dots, E_T = e_T)$$
   
-  Factors:
-  \begin{itemize}
-  		\item $\mathbbm{1}[B_1[0] = 0]$
-  		\item $\mathbbm{1}[B_3[1] \leq K]$
-  		\item $\mathbbm{1}[B_i[0] = B_{i-1}[1]]$
-  		\item $\mathbbm{1}[B_i[1] = B_{i-1} + X_i]$
-  \end{itemize}
-  
-  \begin{center}
-	  \begin{tikzpicture}
-			\begin{scope}[every node/.style={circle,thick,draw}]
-	    		\node (B1) at (3,0) {$B_1$};
-	    		\node (B2) at (6,0) {$B_2$};
-	    		\node (B3) at (9,0) {$B_3$};
-	    		\node (X1) at (3,-3) {$X_1$};
-	    		\node (X2) at (6,-3) {$X_2$};
-	    		\node (X3) at (9,-3) {$X_3$};
-			\end{scope}
-			\begin{scope}[every node/.style={rectangle,thick,draw}]
-				\node (t0) at (1.5,0)	 {};  		
-	    		\node (t1) at (4.5,0) {};
-	    		\node (t2) at (7.5,0) {};
-	    		\node (t3) at (10.5,0) {};
-	    		\node (t4) at (3,-1.5) {};
-	    		\node (t5) at (6,-1.5) {};
-	    		\node (t6) at (9,-1.5) {};
-			\end{scope}
-	
-			\begin{scope}[every edge/.style={draw=black,thick}]
-				\path [-] (t0) edge node {} (B1);	    		
-	    		\path [-] (B1) edge node {} (t1);
-	    		\path [-] (t1) edge node {} (B2);
-	    		\path [-] (B2) edge node {} (t2);
-	    		\path [-] (t2) edge node {} (B3);
-	    		\path [-] (B3) edge node {} (t3);
-	    		\path [-] (B1) edge node {} (t4);	    		
-	    		\path [-] (t4) edge node {} (X1);
-	    		\path [-] (B2) edge node {} (t5);
-	    		\path [-] (t5) edge node {} (X2);
-	    		\path [-] (B3) edge node {} (t6);
-	    		\path [-] (t6) edge node {} (X3);
-			\end{scope}
-		\end{tikzpicture}
-	\end{center}
-  
-  \item coding
-
+  \item \textbf{[Extra Credit]} Now suppose you change your sensors so that at each time step $t$, they return the list of exact positions of the $K$ cars, but shifted (with wrap around) by a random amount. For example, if the true car positions at time step 1 are $c_{11}=1$, $c_{12}=3$, $c_{13}=8$, $c_{14}=5$, then $e_1$ would be $[1,3,8,5]$, $[3,8,5,1]$, $[8,5,1,3]$, or $[5,1,3,8]$, each with probability $\frac{1}{4}$. Describe an efficient algorithm for computing $p(c_{ti} \mid e_1, \dots, e_T)$ for any time step $t$ and car $i$. Your algorithm should not be exponential in $K$ or $T$.
+	\fi	
 \end{enumerate}
 
-\section*{\normalsize Problem 3: Course Scheduling}
-
-In this problem, we will apply your weighted CSP solver to the problem of course scheduling. We have scraped a subset of courses that are offered from Stanford's Bulletin. For each course in this dataset, we have information on which quarters it is offered, the prerequisites (which may not be fully accurate due to ambiguity in the listing), and the range of units allowed. You can take a look at all the courses in \texttt{courses.json}. Please refer to \texttt{util.Course} and \texttt{util.CourseBulletin} for more information. 
-
-\begin{enumerate}[label=(\alph*)]
-
-  \item coding
-  
-  \item coding
-  
-  \item Now try to use the course scheduler for the winter and spring (and next year if applicable). Create your own \texttt{profile.txt} and then run the course scheduler:
-
-	\texttt{python run\_p3.py profile.txt}
-
-	You might want to turn on the appropriate heuristic flags to speed up the computation. Does it produce a reasonable course schedule? Please include your \texttt{profile.txt} and the best schedule in your writeup; we're curious how it worked out for you!
-
-	\texttt{profile.txt}\\
-	\texttt{-----------}\\
-	\texttt{minUnits 3}\\
-	\texttt{maxUnits 5}\\
-	\texttt{taken STATS116}\\
-	\texttt{taken CS106A}\\
-	\texttt{taken CS106B}\\
-	\texttt{taken CS103}\\
-	\texttt{taken CS107}\\
-	\texttt{taken CS109}\\
-	\texttt{taken CS110}\\
-	\texttt{taken CS221}\\
-	\texttt{request CS161 weight 2}\\
-	\texttt{request CS231N weight 2}\\
-	\texttt{request CS229}\\
-	\texttt{request CS230}\\
-	\texttt{request CS234}\\
-	\texttt{-----------}
-
-	Resulting best schedule:\\
-		\begin{tabular}{l l l}
-			Quarter & Units & Course\\
-			\hline
-	  		Sum2019 & 5 & CS161\\
-	  		Aut2019 & 4 & CS229\\
-	  		Win2020 & 3 & CS234\\
-	  		Spr2020 & 4 & CS231N\\
-	  	\end{tabular}
-	  	
-	  	Note: I added CS230, CS231N, and CS234 to \texttt{courses.json}.
-
-\end{enumerate}
-
-\section*{\normalsize Problem 4: Weighted CSPs with Notable Patterns (Extra Credit)}
-
-Want more challenges about CSP? Here we go. :D
-\smallskip
-
-Suppose we have a weighted CSP with variables $X_1, \dots, X_n$ with domains $Domain_i = {1, \dots, K}$. We have a set of basic factors which depend only on adjacent pairs of variables in the same way: there is some function $g$ such that $f_i(x) = g(x_i, x_{i+1})$ for $i = 1, \dots, n−1$. In addition, we have a small set of notable patterns $P$, where each $p \in P$ is a sequence of elements from the domain.
-\smallskip
-
-Let $n_p$ be the number of times that $p$ occurs in an assignment $x = (x_1, \dots, x_n)$ as a consecutive sequence. Define the weight of an assignment $x$ to be $\prod_{i=1}^{n−1} f_i(x) \prod_{p \in P} \gamma^{n_p}$. Intuitively, we multiply the weight by $\gamma$ every time a notable pattern appears.
-\smallskip
-
-For example, suppose $n = 4$, $\gamma = 7$, $g(a,b)= 5[a = b] + 1[a \neq b]$ and $P = \{[1,3,3],[1,2,3]\}$. Then the assignment $x = [1,3,3,2]$ has weight $(1 \cdot 5 \cdot 1) \cdot (71 \cdot 70) = 35$. 
-
-\begin{enumerate}[label=(\alph*)]
-
-  \item If we were to include the notable patterns as factors into the CSP, what would be the worst case treewidth? (You can assume each $p$ has a maximum length of $n$.)
-  
-  \begin{center}
-	  \begin{tikzpicture}
-			\begin{scope}[every node/.style={circle,thick,draw}]
-	    		\node (X1) at (1.5,0) {$X_1$};
-	    		\node (X2) at (4.5,0) {$X_2$};
-	    		\node (X3) at (7.5,0) {$X_3$};
-	    		\node (X4) at (10.5,0) {$X_4$};
-			\end{scope}
-			\begin{scope}[every node/.style={rectangle,thick,draw}]
-				\node (t0) at (3,0)	 {};  		
-	    		\node (t1) at (6,0) {};
-	    		\node (t2) at (9,0) {};
-	    		\node (t3) at (6,-1.5) {};
-			\end{scope}
-	
-			\begin{scope}[every edge/.style={draw=black,thick}]
-				\path [-] (X1) edge node {} (t0);	    		
-	    		\path [-] (t0) edge node {} (X2);
-	    		\path [-] (X2) edge node {} (t1);
-	    		\path [-] (t1) edge node {} (X3);
-	    		\path [-] (X3) edge node {} (t2);
-	    		\path [-] (t2) edge node {} (X4);
-	    		\path [-] (X1) edge node {} (t3);
-	    		\path [-] (X2) edge node {} (t3);
-	    		\path [-] (X3) edge node {} (t3);
-	    		\path [-] (X4) edge node {} (t3);
-			\end{scope}
-		\end{tikzpicture}
-	\end{center}
-	
-	Worst-case tree width is $n - 1$.
-  
-  \item The treewidth doesn't really tell us the true complexity of the problem. Devise an efficient algorithm to compute the maximum weight assignment. You need to describe your algorithm in enough detail but don't need to implement it. Analyze your algorithm's time and space complexities. You'll get points only if your algorithm is much better than the naive solution.
-		
-\end{enumerate}
-\fi
 \end{document}
