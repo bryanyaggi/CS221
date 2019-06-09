@@ -46,7 +46,7 @@ def formula2a():
 
     # Note: You do NOT have to enforce that the mother is a "person"
     # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return Forall('$x', Implies(Person('$x'), Exists('$y', Mother('$x', '$y'))))
     # END_YOUR_CODE
 
 # Sentence: "At least one person has no children."
@@ -57,7 +57,7 @@ def formula2b():
 
     # Note: You do NOT have to enforce that the child is a "person"
     # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return Exists('$x', And(Person('$x'), Forall('$y', Not(Child('$x', '$y')))))
     # END_YOUR_CODE
 
 # Return a formula which defines Daughter in terms of Female and Child.
@@ -68,7 +68,8 @@ def formula2c():
     def Child(x, y): return Atom('Child', x, y)        # whether x has a child y
     def Daughter(x, y): return Atom('Daughter', x, y)  # whether x has a daughter y
     # BEGIN_YOUR_CODE (our solution is 4 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return Forall('$x', Forall('$y', Equiv(And(Female('$x'), Child('$y', '$x')),
+        Daughter('$y', '$x'))))
     # END_YOUR_CODE
 
 # Return a formula which defines Grandmother in terms of Female and Parent.
@@ -79,7 +80,10 @@ def formula2d():
     def Parent(x, y): return Atom('Parent', x, y)            # whether x has a parent y
     def Grandmother(x, y): return Atom('Grandmother', x, y)  # whether x has a grandmother y
     # BEGIN_YOUR_CODE (our solution is 5 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    def Grandparent(x, y):                                   # whether x has a grandparent y
+        return Exists('$z', And(Parent(x, '$z'), Parent('$z', y)))
+    return Forall('$x', Forall('$y', Equiv(And(Female('$x'), Grandparent('$y', '$x')),
+        Grandmother('$y', '$x'))))
     # END_YOUR_CODE
 
 ############################################################
