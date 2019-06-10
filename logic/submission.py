@@ -114,7 +114,23 @@ def liar():
     formulas.append(Equiv(TellTruth(john), Not(CrashedServer(john))))
     # You should add 5 formulas, one for each of facts 1-5.
     # BEGIN_YOUR_CODE (our solution is 11 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    formulas.append(Equiv(TellTruth(susan), CrashedServer(nicole)))
+    formulas.append(Equiv(TellTruth(mark), CrashedServer(susan)))
+    formulas.append(Equiv(TellTruth(nicole), Not(TellTruth(susan))))
+    def OnlyOne(atom):
+        individuals = ['john', 'susan', 'nicole', 'mark']
+        orlist = []
+        for person in individuals:
+            andlist = []
+            andlist.append(atom(person))
+            for other in individuals:
+                if other == person:
+                    continue
+                andlist.append(Not(atom(other)))
+            orlist.append(AndList(andlist))
+        return OrList(orlist)
+    formulas.append(OnlyOne(TellTruth))
+    formulas.append(OnlyOne(CrashedServer))
     # END_YOUR_CODE
     query = CrashedServer('$x')
     return (formulas, query)
