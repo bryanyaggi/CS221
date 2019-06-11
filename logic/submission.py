@@ -162,7 +162,24 @@ def ints():
     formulas = []
     query = None
     # BEGIN_YOUR_CODE (our solution is 30 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    def NonIdenticalSuccessor(x, y):
+        return And(Successor(x, y), Not(Equals(x, y)))
+    def UniqueSuccessor(x, y):                           # whether x has unique successor y
+        andlist = []
+        andlist.append(NonIdenticalSuccessor(x, y))
+        andlist.append(Forall('$z', Equiv(NonIdenticalSuccessor(x, '$z'), Equals('$z', y))))
+        return AndList(andlist)
+    formulas.append(Forall('$x', Exists('$y', UniqueSuccessor('$x', '$y'))))
+    formulas.append(Forall('$x',
+        And(Or(Even('$x'), Odd('$x')), Not(And(Even('$x'), Odd('$x'))))))
+    formulas.append(Forall('$x', Forall('$y',
+        Implies(And(Successor('$x', '$y'), Even('$x')), Odd('$y')))))
+    formulas.append(Forall('$x', Forall('$y',
+        Implies(And(Successor('$x', '$y'), Odd('$x')), Even('$y')))))
+    formulas.append(Forall('$x', Forall('$y',
+        Implies(Successor('$x', '$y'), Larger('$y', '$x')))))
+    formulas.append(Forall('$x', Forall('$y', Forall('$z',
+        Implies(And(Larger('$x', '$y'), Larger('$y', '$z')), Larger('$x', '$z'))))))
     # END_YOUR_CODE
     query = Forall('$x', Exists('$y', And(Even('$y'), Larger('$y', '$x'))))
     return (formulas, query)
