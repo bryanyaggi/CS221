@@ -201,7 +201,9 @@ def createRule1():
     # Return a GrammarRule for 'every $Noun $Verb some $Noun'
     # Note: universal quantification should be outside existential quantification.
     # BEGIN_YOUR_CODE (our solution is 3 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return GrammarRule('$Clause', ['every', '$Noun', '$Verb', 'some', '$Noun'],
+            lambda args: Forall('$x', Implies(Atom(args[0].title(), '$x'),
+                Exists('$y', And(Atom(args[2].title(), '$y'), Atom(args[1].title(), '$x', '$y'))))))
     # END_YOUR_CODE
 
 def createRule2():
