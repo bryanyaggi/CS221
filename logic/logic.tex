@@ -150,6 +150,10 @@ Note: in this problem, "larger than" is just an arbitrary relation, and you shou
 		\item A number is not larger than itself.
 	\end{itemize}
 	Prove that there is no finite, non-empty model for which the resulting set of 7 constraints is consistent. This means that if we try to prove this theorem by model checking only finite models, we will find that it is false, when in fact the theorem is true for a countably infinite model (where the objects in the model are the numbers).
+	
+	Consider the set $x = \{ x_1, x_2, x_3, \dots, x_n \}$\\
+	Given constraints 1, 5, and 6, $x$ would be consistent if $x_1 < x_2 < x_3 < \dots < x_n$ and $x_n < x_1$.\\
+	When the last constraint is added, $x$ is not consistent because the cycle is no longer valid since $x_1 < x_1 = false$.
   
 \end{enumerate}
 
