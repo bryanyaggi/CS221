@@ -209,11 +209,17 @@ def createRule1():
 def createRule2():
     # Return a GrammarRule for 'there is some $Noun that every $Noun $Verb'
     # BEGIN_YOUR_CODE (our solution is 3 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return GrammarRule('$Clause', ['there', 'is', 'some', '$Noun', 'that', 'every', '$Noun', '$Verb'],
+            lambda args: Exists('$x', And(Atom(args[0].title(), '$x'),
+                Forall('$y', Implies(Atom(args[1].title(), '$y'), Atom(args[2].title(), '$y', '$x'))))))
     # END_YOUR_CODE
 
 def createRule3():
     # Return a GrammarRule for 'if a $Noun $Verb a $Noun then the former $Verb the latter'
     # BEGIN_YOUR_CODE (our solution is 4 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return GrammarRule('$Clause', ['if', 'a', '$Noun', '$Verb', 'a', '$Noun',
+        'then', 'the', 'former', '$Verb', 'the', 'latter'],
+        lambda args: Forall('$x', Forall('$y', Implies(And(Atom(args[0].title(), '$x'),
+            And(Atom(args[2].title(), '$y'), Atom(args[1].title(), '$x', '$y'))),
+            Atom(args[3].title(), '$x', '$y')))))
     # END_YOUR_CODE
