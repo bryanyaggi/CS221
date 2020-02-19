@@ -1,6 +1,6 @@
 # Pac-Man Assignment
 
-See `index.html` assignment details. Credit: [Berkeley CS 188](http://inst.eecs.berkeley.edu/~cs188)
+See `index.html` for assignment details. Credit: [Berkeley CS 188](http://inst.eecs.berkeley.edu/~cs188)  
 `pacman.pdf` is the assignment writeup.
 
 ## Instructions
