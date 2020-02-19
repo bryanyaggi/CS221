@@ -332,7 +332,7 @@ def betterEvaluationFunction(currentGameState):
     """
       Your extreme, unstoppable evaluation function (problem 4).
 
-      DESCRIPTION: <write something here so we know what you did>
+      See description in writeup Problem 4b.
     """
 
     # BEGIN_YOUR_CODE (our solution is 15 lines of code, but don't worry if you deviate from this)
